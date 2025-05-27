@@ -1,0 +1,499 @@
+<link
+  href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css"
+  rel="stylesheet"
+  id="bootstrap-css"
+/>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
+    <title>AsiaPac Lead Finder</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+      integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.5.0/css/all.css"
+      integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU"
+      crossorigin="anonymous"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static', filename='style.css')}}"
+    />
+  </head>
+  <body>
+    <div class="container-fluid h-100">
+      <div class="row justify-content-center h-100">
+        <!-- Main chat area column only, no sidebar -->
+        <div class="col-12 chat">
+          <div class="card">
+            <div class="card-header msg_head">
+              <div class="d-flex bd-highlight">
+                <div class="img_cont">
+                  <img
+                    src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png"
+                    class="rounded-circle user_img"
+                  />
+                  <span class="online_icon"></span>
+                </div>
+                <div class="user_info">
+                  <span style="color: black;">AsiaPac Lead Finder</span>
+                  <p style="color: black;">Ask me anything!</p>
+                </div>
+              </div>
+            </div>
+            <div id="messageFormeight" class="card-body msg_card_body">
+              <!-- 👇 Insert the new block HERE 👇 -->
+            <div class="intro-container text-center my-4 p-4">
+              <img width="96" height="96" src="https://img.icons8.com/fluency-systems-regular/96/FFFFFF/message-bot.png" alt="message-bot"/>
+              <h3 class="font-weight-bold">Discover Qualified Leads with Confidence</h3>
+              <p style="color: white;">
+                Introducing our Sales Assistant — your reliable resource for strategic prospecting and business development.
+                Whether you are seeking key decision-makers, company intelligence, or tailored lead recommendations,
+                our Sales Assistant is designed to deliver accurate, insightful, and timely support to enhance your sales
+                efforts and drive meaningful connections.
+              </p>
+            </div>
+            </div>
+
+            <div class="card-footer">
+              <form id="messageArea" class="input-group">
+                <input
+                  type="text"
+                  id="text"
+                  name="msg"
+                  placeholder="Type your message..."
+                  autocomplete="off"
+                  class="form-control type_msg"
+                  required
+                />
+                <div class="input-group-append">
+                  <button
+                    type="submit"
+                    id="send"
+                    class="input-group-text send_btn"
+                  >
+                    <i class="fas fa-location-arrow"></i>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.addEventListener("DOMContentLoaded", function () {
+      const now = new Date();
+      const hours = now.getHours().toString().padStart(2, "0");
+      const minutes = now.getMinutes().toString().padStart(2, "0");
+      const currentTime = `${hours}:${minutes}`;
+      document.getElementById("welcome-time").textContent = currentTime;
+    });
+
+      function scrollToBottom() {
+        var messageBody = document.getElementById("messageFormeight");
+        messageBody.scrollTop = messageBody.scrollHeight;
+      }
+
+      function showTyping() {
+        const now = new Date();
+        const hours = now.getHours().toString().padStart(2, "0");
+        const minutes = now.getMinutes().toString().padStart(2, "0");
+        document.getElementById("typing-indicator").style.display = "flex";
+        document.querySelector("#typing-indicator .img_cont_msg").style.display = "block";
+        document.querySelector("#typing-indicator .typing-dots").style.display = "block";
+        scrollToBottom();
+      }
+      function hideTyping() {
+        document.getElementById("typing-indicator").style.display = "none";
+        document.querySelector("#typing-indicator .img_cont_msg").style.display = "none";
+        document.querySelector("#typing-indicator .typing-dots").style.display = "none";
+      }
+
+      // Function to handle bot response (render it in chat)
+  function handleBotResponse(response) {
+    const date = new Date();
+    const hour = date.getHours();
+    const minute = date.getMinutes();
+    const str_time = hour + ":" + minute;
+
+    let botHtml = "";
+    let formattedResponse = response.replace(/\n/g, "<br>");
+    if (typeof response === "string" && response.startsWith("<table")) {
+      botHtml =
+        '<div class="d-flex justify-content-start mb-4"><div class="img_cont_msg"><img src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png" class="rounded-circle user_img_msg"></div>' +
+        '<div class="msg_cotainer">' +
+        '<div class="table-responsive">' +
+          response +
+        '</div>' + // Render DataFrame as table
+        '<span class="msg_time">' +
+        str_time +
+        "</span></div></div>";
+    } else {
+      botHtml =
+        '<div class="d-flex justify-content-start mb-4"><div class="img_cont_msg"><img src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png" class="rounded-circle user_img_msg"></div>' +
+        '<div class="msg_cotainer">' +
+          formattedResponse +
+        '<span class="msg_time">' +
+        str_time +
+        "</span></div></div>";
+    }
+
+    $("#messageFormeight").append($.parseHTML(botHtml));
+    scrollToBottom();
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const sendButton = document.getElementById("send"); // Change this to match your actual send button ID
+    const messageInput = document.getElementById("text"); // Change this to your input field's ID
+    const introContainer = document.querySelector(".intro-container");
+
+    if (sendButton && messageInput && introContainer) {
+      sendButton.addEventListener("click", function () {
+        const messageText = messageInput.value.trim();
+        if (messageText !== "") {
+          introContainer.style.display = "none";
+        }
+      });
+    }
+  });
+
+      function sendMessage(message) {
+            const date = new Date();
+            const str_time = date.getHours() + ":" + date.getMinutes();
+
+            // Append the user's message to the chat
+            var userHtml =
+                `<div class="d-flex justify-content-end mb-4">
+                    <div class="msg_cotainer_send">${message}
+                        <span class="msg_time_send">${str_time}</span>
+                    </div>
+                    <div class="img_cont_msg">
+                        <img src="https://i.ibb.co/d5b84Xw/Untitled-design.png" class="rounded-circle user_img_msg">
+                    </div>
+                </div>`;
+            $("#text").val(""); // Clear the input field
+            $("#messageFormeight").append(userHtml);
+
+            // Remove any existing typing indicator before adding a new one
+          $("#messageFormeight #typing-indicator").remove();
+
+          // Dynamically insert typing indicator after the latest user message
+          var typingIndicatorHtml =
+            '<div id="typing-indicator" class="d-flex justify-content-start mb-4" style="display: flex;">' +
+            '<div class="img_cont_msg" style="display: block;">' +
+            '<img src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png" class="rounded-circle user_img_msg">' +
+            '</div>' +
+            '<div class="typing-dots" style="margin-left: 10px; display: block;">' +
+            '<span></span><span></span><span></span>' +
+            '</div>' +
+            '</div>';
+
+          $("#messageFormeight").append(typingIndicatorHtml);
+
+          scrollToBottom();
+          // showTyping(); // No longer needed, handled above
+            scrollToBottom();
+
+            // Send message to Flask backend via AJAX
+            $.ajax({
+                type: "POST",
+                url: "/get",
+                data: { msg: message },
+                success: function (response) {
+                    hideTyping(); // Hide typing indicator after bot reply
+                    handleBotResponse(response);
+                }
+            });
+        }
+
+      $(document).ready(function () {
+        $("#messageArea").on("submit", function (event) {
+          const date = new Date();
+          const hour = date.getHours();
+          const minute = date.getMinutes();
+          const str_time = hour + ":" + minute;
+          var rawText = $("#text").val();
+
+          var userHtml =
+            '<div class="d-flex justify-content-end mb-4"><div class="msg_cotainer_send">' +
+            rawText +
+            '<span class="msg_time_send">' +
+            str_time +
+            '</span></div><div class="img_cont_msg"><img src="https://i.ibb.co/d5b84Xw/Untitled-design.png" class="rounded-circle user_img_msg"></div></div>';
+
+          $("#text").val("");
+          $("#messageFormeight").append(userHtml);
+
+          // Remove any existing typing indicator before adding a new one
+          $("#messageFormeight #typing-indicator").remove();
+
+          // Dynamically insert typing indicator after the latest user message
+          var typingIndicatorHtml =
+            '<div id="typing-indicator" class="d-flex justify-content-start mb-4" style="display: flex;">' +
+            '<div class="img_cont_msg" style="display: block;">' +
+            '<img src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png" class="rounded-circle user_img_msg">' +
+            '</div>' +
+            '<div class="typing-dots" style="margin-left: 10px; display: block;">' +
+            '<span></span><span></span><span></span>' +
+            '</div>' +
+            '</div>';
+
+          $("#messageFormeight").append(typingIndicatorHtml);
+
+          scrollToBottom();
+          // showTyping(); // No longer needed, handled above
+
+          $.ajax({
+            data: {
+              msg: rawText,
+            },
+            type: "POST",
+            url: "/get",
+          }).done(function (data) {
+            hideTyping(); // Hide typing indicator after bot reply
+            let botHtml = "";
+
+            // Check if response is a DataFrame (converted to HTML table)
+            if (typeof data === "string" && data.startsWith("<table")) {
+                botHtml =
+                    '<div class="d-flex justify-content-start mb-4"><div class="img_cont_msg"><img src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png" class="rounded-circle user_img_msg"></div>' +
+                    '<div class="msg_cotainer">' +
+                    '<div class="table-responsive">' + data + '</div>' + // Render DataFrame as table
+                    '<span class="msg_time">' +
+                    str_time +
+                    "</span></div></div>";
+                    $("#messageFormeight").append($.parseHTML(botHtml));
+            }// 2️⃣ If response contains buttons
+            else if (typeof data === "object" && data.message && data.buttons) {
+                let buttonHtml = `<p>${data.message}</p><div class="button-container">`;
+                  data.buttons.forEach(function (company) {
+                    buttonHtml += `<button class="btn btn-primary m-2 btn-response" onclick="sendButtonResponse('${company}')">${company}</button>`;
+                });
+                buttonHtml += "</div>";
+
+                botHtml =
+                    '<div class="d-flex justify-content-start mb-4"><div class="img_cont_msg"><img src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png" class="rounded-circle user_img_msg"></div>' +
+                    '<div class="msg_cotainer">' +
+                    buttonHtml +
+                    '<span class="msg_time">' +
+                    str_time +
+                    "</span></div></div>";
+                    $("#messageFormeight").append($.parseHTML(botHtml));
+                    scrollToBottom();
+            } 
+            else {
+              let formattedResponse = data.replace(/\n/g, "<br>");
+                botHtml =
+                    '<div class="d-flex justify-content-start mb-4"><div class="img_cont_msg"><img src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png" class="rounded-circle user_img_msg"></div>' +
+                    '<div class="msg_cotainer">' +
+                      formattedResponse +
+                    '<span class="msg_time">' +
+                    str_time +
+                    "</span></div></div>";
+                    $("#messageFormeight").append($.parseHTML(botHtml));
+                    scrollToBottom();
+            }
+          //   🔹 Function to handle button clicks (Sends button text back to Flask)
+          window.sendButtonResponse = function (buttonText) {
+            sendMessage(buttonText);
+          };
+          });
+          event.preventDefault();
+        });
+      });
+
+      // Sidebar navigation click logic
+  document.addEventListener("DOMContentLoaded", function () {
+    // Sidebar nav click handler
+    const navChat = document.getElementById('nav-chat');
+    const navHistory = document.getElementById('nav-history');
+    const historyPanelDisplay = document.getElementById('history-panel-display');
+    const historyListUL = document.getElementById('history-list');
+
+    const API_CHAT_URL = '/chat';
+    const API_CREATE_SESSION_URL = '/create-session';
+    const API_CLEAR_HISTORY_URL = '/clear-backend-history';
+
+    let currentChatSession = createNewFrontendChatObject(); 
+    let chatHistoryIndex = []; 
+    let currentBackendSessionId = null; 
+
+    function generateMessageId() {
+      return `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    }
+
+    // --- Frontend Chat Session & Local History Management ---
+    function createNewFrontendChatObject(id = `chat-${Date.now()}`) {
+        return {
+            id: id, 
+            name: `Chat ${new Date().toLocaleString()}`,
+            messages: [], 
+            timestamp: Date.now()
+        };
+    }
+
+    function startNewFrontendChatSession(loadDefaults = true) {
+      currentChatSession = createNewFrontendChatObject(); 
+      // createNewBackendSession(() => {
+      //     console.log("New frontend chat started, associated with new backend session:", currentBackendSessionId);
+      //     // promptInput.focus();
+      // });
+    }
+
+    function saveCurrentFrontendChatSession() { 
+      if (!currentChatSession || !currentChatSession.id) return;
+      
+      const isExistingInHistory = chatHistoryIndex.some(entry => entry.id === currentChatSession.id);
+      if (currentChatSession.messages.length === 0 && !currentChatSession.systemPrompt.trim() && !isExistingInHistory) {
+            console.log("Skipping save for new, entirely empty chat session:", currentChatSession.id);
+            return;
+      }
+
+      // currentChatSession.systemPrompt = systemPromptInput.value;
+      // currentChatSession.model = modelSelect.value; // Overall session model, individual messages might vary if setting changes
+      // currentChatSession.temperature = parseFloat(temperatureSlider.value);
+      // currentChatSession.timestamp = Date.now(); // Update timestamp on every save
+
+      // Name derivation logic
+      if (currentChatSession.name.startsWith("Chat ") || currentChatSession.messages.length === 0) {
+          if (currentChatSession.messages.length > 0) {
+              const firstUserMessage = currentChatSession.messages.find(m => m.sender === 'user');
+              if (firstUserMessage && firstUserMessage.text) {
+                  currentChatSession.name = firstUserMessage.text.substring(0, 30) + (firstUserMessage.text.length > 30 ? '...' : '');
+              } else { // No user message or empty, use generic
+                  currentChatSession.name = `Chat ${new Date(currentChatSession.timestamp).toLocaleString()}`;
+              }
+          } else { // No messages, use generic
+              currentChatSession.name = `Chat ${new Date(currentChatSession.timestamp).toLocaleString()}`;
+          }
+      }
+      // If name was manually set (doesn't start with "Chat ") and there are still messages, keep it.
+
+      localStorage.setItem(currentChatSession.id, JSON.stringify(currentChatSession));
+      
+      const indexEntry = chatHistoryIndex.find(entry => entry.id === currentChatSession.id);
+      if (indexEntry) {
+          if(indexEntry.name !== currentChatSession.name) indexEntry.name = currentChatSession.name;
+          // indexEntry.timestamp = currentChatSession.timestamp; // Already updated if name changed
+      } else {
+          chatHistoryIndex.push({ 
+              id: currentChatSession.id, 
+              name: currentChatSession.name,
+              timestamp: currentChatSession.timestamp 
+          });
+      }
+      chatHistoryIndex.sort((a, b) => b.timestamp - a.timestamp); 
+      localStorage.setItem(CHAT_HISTORY_INDEX_KEY, JSON.stringify(chatHistoryIndex));
+      renderHistoryList(); 
+      updateChatPromptHeader();
+      console.log("Frontend chat session saved to localStorage:", currentChatSession.id);
+  }
+
+    function loadChatHistoryIndex() { 
+      const storedIndex = localStorage.getItem(CHAT_HISTORY_INDEX_KEY);
+      if (storedIndex) {
+          chatHistoryIndex = JSON.parse(storedIndex);
+          chatHistoryIndex.sort((a, b) => b.timestamp - a.timestamp);
+      } else {
+          chatHistoryIndex = [];
+      }
+      renderHistoryList();
+    }
+
+    function loadFrontendChatSession(frontendSessionId) {
+      const sessionData = localStorage.getItem(frontendSessionId);
+      if (sessionData) {
+          currentChatSession = JSON.parse(sessionData); 
+          // systemPromptInput.value = currentChatSession.systemPrompt || ''; 
+          // modelSelect.value = currentChatSession.model || DEFAULT_MODEL_ID;
+          // updateTemperatureUI(currentChatSession.temperature || DEFAULT_TEMPERATURE);
+          // updateModelInfo(modelSelect.value); 
+
+          chatOutput.innerHTML = ''; 
+          if (currentChatSession.messages && currentChatSession.messages.length > 0) {
+              // hideWelcomeMessage();
+              currentChatSession.messages.forEach(msg => {
+                  // Ensure older messages without IDs get one for DOM keying, but don't save it back to the object
+                  const msgToRender = {...msg};
+                  if (!msgToRender.id) msgToRender.id = generateMessageId(); // Temporary for rendering
+                  addMessageToChatDOM(msgToRender); 
+              });
+          } else {
+              renderWelcomeMessage();
+          }
+          
+          adjustTextareaHeight(systemPromptInput);
+          switchToChatView(); 
+          updateChatPromptHeader();
+          
+          createNewBackendSession(() => {
+              console.log("Loaded frontend chat session:", frontendSessionId, "Associated with new backend session:", currentBackendSessionId);
+              promptInput.focus();
+          });
+      }
+  }
+
+
+    function renderHistoryList() { 
+      historyListUL.innerHTML = '';
+      chatHistoryIndex.forEach(entry => {
+          const li = document.createElement('li');
+          li.classList.add('history-item');
+          li.dataset.sessionId = entry.id; 
+          if (currentChatSession && entry.id === currentChatSession.id) {
+              li.classList.add('selected-history');
+          }
+
+          const nameSpan = document.createElement('span');
+          nameSpan.classList.add('history-item-name');
+          nameSpan.textContent = entry.name || `Chat ${new Date(entry.timestamp).toLocaleDateString()}`;
+          li.appendChild(nameSpan);
+
+          const deleteBtn = document.createElement('button');
+          deleteBtn.classList.add('history-item-delete');
+          deleteBtn.innerHTML = '×'; 
+          deleteBtn.title = "Delete local chat";
+          deleteBtn.onclick = (event) => deleteFrontendChatSession(entry.id, event);
+          li.appendChild(deleteBtn);
+          
+          li.onclick = () => {
+                document.querySelectorAll('.history-item.selected-history').forEach(item => item.classList.remove('selected-history'));
+                li.classList.add('selected-history');
+                loadFrontendChatSession(entry.id); 
+          }
+          historyListUL.appendChild(li);
+      });
+    }
+
+    navChat.addEventListener('click', function() {
+      // Show chat panel
+      document.getElementById("messageFormeight").style.display = "";
+      document.getElementById("history-panel-display").style.display = "none";
+      renderHistoryList();
+    });
+
+    navHistory.addEventListener('click', function() {
+      // Show history panel
+      document.getElementById("messageFormeight").style.display = "none";
+      historyPanelDisplay.style.display = "block";
+      renderHistoryList();
+    });
+    // Default: show chat, hide history
+    document.getElementById("messageFormeight").style.display = "";
+    document.getElementById("history-panel-display").style.display = "none";
+  });
+    </script>
+  </body>
+</html>
