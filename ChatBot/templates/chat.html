@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,6 +14,7 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css')}}">
 </head>
+
 <body>
     <!-- Splash screen that hides when the app is loaded -->
     <div id="splash-screen" class="splash-screen">
@@ -33,7 +35,7 @@
         <button class="mobile-menu-toggle d-md-none" id="mobileSidebarToggle">
             <i class="fas fa-bars"></i>
         </button>
-        
+
         <aside class="sidebar">
             <div class="sidebar-header">
                 <img src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png" alt="Logo" class="sidebar-logo">
@@ -52,7 +54,7 @@
             <div class="sidebar-footer">
                 <span class="version">v1.0.0</span>
             </div>
-            
+
             <!-- Add theme toggle at bottom of sidebar -->
             <div class="theme-toggle text-center mb-3">
                 <label class="toggle-switch">
@@ -62,7 +64,7 @@
                 <span class="ms-2 text-sm">Dark Mode</span>
             </div>
         </aside>
-        
+
         <main class="main-content">
             <header class="chat-header">
                 <div class="user-info">
@@ -72,7 +74,7 @@
                         <span class="user-status"><i class="fas fa-circle status-online"></i> Online</span>
                     </div>
                 </div>
-                
+
                 <!-- Add notification icon -->
                 <div class="header-actions">
                     <button class="btn" title="Notifications">
@@ -87,7 +89,7 @@
                     </button>
                 </div>
             </header>
-            
+
             <div class="chat-container">
                 <!-- This is where the chat messages will appear -->
                 <div id="messageFormeight" class="messages-container">
@@ -98,45 +100,50 @@
                         </div>
                         <h3 class="intro-title">Discover Qualified Leads with Confidence</h3>
                         <p class="intro-text">
-                            Introducing our Sales Assistant — your reliable resource for strategic prospecting and business development.
-                            Whether you are seeking key decision-makers, company intelligence, or tailored lead recommendations,
-                            our Sales Assistant is designed to deliver accurate, insightful, and timely support to enhance your sales
+                            Introducing our Sales Assistant — your reliable resource for strategic prospecting and
+                            business development.
+                            Whether you are seeking key decision-makers, company intelligence, or tailored lead
+                            recommendations,
+                            our Sales Assistant is designed to deliver accurate, insightful, and timely support to
+                            enhance your sales
                             efforts and drive meaningful connections.
                         </p>
                         <div class="intro-suggestions">
                             <h4>Try asking:</h4>
                             <div class="suggestion-chips">
-                                <button class="suggestion-chip" onclick="sendSuggestion('Find me leads in the technology sector')">
+                                <button class="suggestion-chip"
+                                    onclick="sendSuggestion('Find me leads in the technology sector')">
                                     <i class="fas fa-search"></i> Find leads in tech sector
                                 </button>
                                 <button class="suggestion-chip" onclick="sendSuggestion('Generate a sales email')">
                                     <i class="fas fa-envelope"></i> Generate a sales email
                                 </button>
-                                <button class="suggestion-chip" onclick="sendSuggestion('Tell me about cybersecurity companies')">
+                                <button class="suggestion-chip"
+                                    onclick="sendSuggestion('Tell me about cybersecurity companies')">
                                     <i class="fas fa-shield-alt"></i> Cybersecurity companies
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- History panel (initially hidden) -->
                 <div id="history-panel-display" class="history-panel" style="display: none;">
                     <h3><i class="fas fa-history"></i> Chat History</h3>
                     <ul id="history-list" class="history-list"></ul>
                 </div>
-                
+
                 <!-- Add mood indicator -->
                 <div class="mood-indicator" title="How was your experience?">
                     <i class="far fa-smile"></i>
                 </div>
             </div>
-            
+
             <footer class="chat-footer">
                 <form id="messageArea" class="message-input-form">
                     <div class="input-group">
-                        <input type="text" id="text" name="msg" class="form-control message-input" 
-                               placeholder="Type your message..." autocomplete="off" required>
+                        <input type="text" id="text" name="msg" class="form-control message-input"
+                            placeholder="Type your message..." autocomplete="off" required>
                         <button type="submit" id="send" class="btn send-button">
                             <i class="fas fa-paper-plane"></i>
                         </button>
@@ -147,7 +154,7 @@
                 </div>
             </footer>
         </main>
-        
+
         <!-- Add floating action button for mobile -->
         <button class="floating-action-button d-md-none">
             <i class="fas fa-bolt"></i>
@@ -173,7 +180,7 @@
 
         function showTyping() {
             $("#messageFormeight #typing-indicator").remove();
-            
+
             const typingIndicatorHtml = `
                 <div id="typing-indicator" class="message-row bot-message typing-message">
                     <div class="message-avatar">
@@ -186,7 +193,7 @@
                     </div>
                 </div>
             `;
-            
+
             $("#messageFormeight").append(typingIndicatorHtml);
             scrollToBottom();
         }
@@ -198,7 +205,7 @@
         function handleBotResponse(response) {
             const currentTime = getCurrentTime();
             let botHtml = "";
-            
+
             // Check if response is a table
             if (typeof response === "string" && response.startsWith("<table")) {
                 botHtml = `
@@ -214,14 +221,20 @@
                         </div>
                     </div>
                 `;
+
+                // Add setTimeout to enhance table after rendering
+                setTimeout(enhanceTableAfterRender, 100);
+
             } else if (typeof response === "object" && response.message && response.buttons) {
+
+
                 // Handle button response
                 let buttonHtml = `<p>${response.message}</p><div class="button-container">`;
-                response.buttons.forEach(function(company) {
+                response.buttons.forEach(function (company) {
                     buttonHtml += `<button class="btn btn-sm btn-primary m-1 btn-response" onclick="sendButtonResponse('${company}')">${company}</button>`;
                 });
                 buttonHtml += "</div>";
-                
+
                 botHtml = `
                     <div class="message-row bot-message animate-in">
                         <div class="message-avatar">
@@ -248,7 +261,7 @@
                     </div>
                 `;
             }
-            
+
             $("#messageFormeight").append($.parseHTML(botHtml));
             scrollToBottom();
         }
@@ -266,28 +279,28 @@
                     </div>
                 </div>
             `;
-            
+
             // Clear input and add user message
             $("#text").val("");
             $("#messageFormeight").append(userMessageHtml);
-            
+
             // Hide intro container if visible
             $(".intro-container").fadeOut();
-            
+
             // Show typing indicator
             showTyping();
             scrollToBottom();
-            
+
             // Send message to backend
             $.ajax({
                 type: "POST",
                 url: "/get",
                 data: { msg: message },
-                success: function(response) {
+                success: function (response) {
                     hideTyping();
                     handleBotResponse(response);
                 },
-                error: function() {
+                error: function () {
                     hideTyping();
                     handleBotResponse("I'm sorry, there was an error processing your request. Please try again.");
                 }
@@ -300,30 +313,30 @@
         }
 
         // Button response handler
-        window.sendButtonResponse = function(buttonText) {
+        window.sendButtonResponse = function (buttonText) {
             sendMessage(buttonText);
         };
 
         // Document ready handlers
-        $(document).ready(function() {
+        $(document).ready(function () {
             // Form submit handler
-            $("#messageArea").on("submit", function(event) {
+            $("#messageArea").on("submit", function (event) {
                 event.preventDefault();
                 const rawText = $("#text").val().trim();
                 if (rawText) {
                     sendMessage(rawText);
                 }
             });
-            
+
             // Navigation handlers
-            $("#nav-chat").on("click", function() {
+            $("#nav-chat").on("click", function () {
                 $(this).addClass("active");
                 $("#nav-history").removeClass("active");
                 $("#messageFormeight").show();
                 $("#history-panel-display").hide();
             });
-            
-            $("#nav-history").on("click", function() {
+
+            $("#nav-history").on("click", function () {
                 $(this).addClass("active");
                 $("#nav-chat").removeClass("active");
                 $("#messageFormeight").hide();
@@ -331,9 +344,9 @@
                 // Render history list (placeholder)
                 $("#history-list").html("<li class='history-item empty-history'>No chat history yet</li>");
             });
-            
+
             // Clear chat button handler
-            $(".btn-clear").on("click", function() {
+            $(".btn-clear").on("click", function () {
                 if (confirm("Are you sure you want to clear this chat?")) {
                     $("#messageFormeight").html("");
                     // Show the intro container again
@@ -371,9 +384,9 @@
                     }
                 }
             });
-            
+
             // New chat button handler
-            $(".btn-refresh").on("click", function() {
+            $(".btn-refresh").on("click", function () {
                 if (confirm("Start a new chat?")) {
                     // Clear current chat and show intro
                     $("#messageFormeight").html("");
@@ -381,30 +394,30 @@
                     if (introContainer.length) {
                         $("#messageFormeight").append(introContainer.clone());
                     }
-                    
+
                     // You could also send a request to reset the chat session on the server
                     // $.post("/create-session", function(data) {
                     //     console.log("New chat session created:", data.session_id);
                     // });
                 }
             });
-            
+
             // Focus on input field when page loads
             $("#text").focus();
-            
+
             // Apply ripple effect to all buttons
             const buttons = document.querySelectorAll('.btn, .btn-response, .suggestion-chip');
             buttons.forEach(button => {
                 button.addEventListener('click', createRipple);
             });
-            
+
             // Mobile sidebar toggle
-            $('#mobileSidebarToggle').on('click', function() {
+            $('#mobileSidebarToggle').on('click', function () {
                 $('.sidebar').toggleClass('show');
             });
-            
+
             // Theme toggle functionality
-            $('#themeToggle').on('change', function() {
+            $('#themeToggle').on('change', function () {
                 if ($(this).is(':checked')) {
                     $('body').addClass('dark-theme');
                     localStorage.setItem('theme', 'dark');
@@ -413,19 +426,19 @@
                     localStorage.setItem('theme', 'light');
                 }
             });
-            
+
             // Load saved theme
             if (localStorage.getItem('theme') === 'dark') {
                 $('#themeToggle').prop('checked', true).trigger('change');
             }
-            
+
             // Floating action button handler
-            $('.floating-action-button').on('click', function() {
+            $('.floating-action-button').on('click', function () {
                 $('#text').focus();
             });
-            
+
             // Mood indicator handler
-            $('.mood-indicator').on('click', function() {
+            $('.mood-indicator').on('click', function () {
                 const icon = $(this).find('i');
                 if (icon.hasClass('fa-smile')) {
                     icon.removeClass('fa-smile').addClass('fa-grin-hearts');
@@ -435,44 +448,44 @@
                     icon.removeClass('fa-frown').addClass('fa-smile');
                 }
             });
-            
+
             // Enhance table styles
             setTimeout(() => {
                 $('.table').addClass('table-enhanced');
             }, 1000);
         });
-        
+
         // Add ripple effect to buttons
         function createRipple(event) {
             const button = event.currentTarget;
             const ripple = document.createElement('span');
             const rect = button.getBoundingClientRect();
-            
+
             const size = Math.max(rect.width, rect.height);
             const x = event.clientX - rect.left - size / 2;
             const y = event.clientY - rect.top - size / 2;
-            
+
             ripple.style.width = ripple.style.height = `${size}px`;
             ripple.style.left = `${x}px`;
             ripple.style.top = `${y}px`;
             ripple.classList.add('ripple');
-            
+
             button.appendChild(ripple);
-            
+
             setTimeout(() => {
                 ripple.remove();
             }, 600);
         }
-        
+
         // Improve table rendering with badges for industries
         function enhanceTableAfterRender() {
             // Add badges to industry cells
             $('.table td:contains("Technology")').html('<span class="badge-custom badge-tech">Technology</span>');
             $('.table td:contains("Finance")').html('<span class="badge-custom badge-finance">Finance</span>');
             $('.table td:contains("Healthcare")').html('<span class="badge-custom badge-health">Healthcare</span>');
-            
+
             // Add tooltips to complex cells
-            $('.table td').each(function() {
+            $('.table td').each(function () {
                 const text = $(this).text();
                 if (text.length > 50) {
                     const shortText = text.substring(0, 47) + '...';
@@ -485,23 +498,15 @@
                 }
             });
         }
-        
-        // Call after AJAX responses that render tables
-        function handleBotResponse(response) {
-            // ...existing handleBotResponse code...
-            
-            // If response contains a table, enhance it
-            if (typeof response === "string" && response.startsWith("<table")) {
-                setTimeout(enhanceTableAfterRender, 100);
-            }
-        }
+
 
         // Hide splash screen and show app content
-        $(window).on('load', function() {
-            $('#splash-screen').fadeOut(500, function() {
+        $(window).on('load', function () {
+            $('#splash-screen').fadeOut(500, function () {
                 $('.app-container').fadeIn(500);
             });
         });
     </script>
 </body>
+
 </html>
