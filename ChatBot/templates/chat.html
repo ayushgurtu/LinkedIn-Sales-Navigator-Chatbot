@@ -1,499 +1,507 @@
-<link
-  href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css"
-  rel="stylesheet"
-  id="bootstrap-css"
-/>
-<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-
 <!DOCTYPE html>
-<html>
-  <head>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AsiaPac Lead Finder</title>
-    <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
-      integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
-      crossorigin="anonymous"
-    />
-    <link
-      rel="stylesheet"
-      href="https://use.fontawesome.com/releases/v5.5.0/css/all.css"
-      integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU"
-      crossorigin="anonymous"
-    />
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="{{ url_for('static', filename='style.css')}}"
-    />
-  </head>
-  <body>
-    <div class="container-fluid h-100">
-      <div class="row justify-content-center h-100">
-        <!-- Main chat area column only, no sidebar -->
-        <div class="col-12 chat">
-          <div class="card">
-            <div class="card-header msg_head">
-              <div class="d-flex bd-highlight">
-                <div class="img_cont">
-                  <img
-                    src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png"
-                    class="rounded-circle user_img"
-                  />
-                  <span class="online_icon"></span>
-                </div>
-                <div class="user_info">
-                  <span style="color: black;">AsiaPac Lead Finder</span>
-                  <p style="color: black;">Ask me anything!</p>
-                </div>
-              </div>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css')}}">
+</head>
+<body>
+    <!-- Splash screen that hides when the app is loaded -->
+    <div id="splash-screen" class="splash-screen">
+        <div class="splash-content">
+            <div class="splash-logo">
+                <img src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png" alt="Logo">
+                <div class="splash-logo-glow"></div>
             </div>
-            <div id="messageFormeight" class="card-body msg_card_body">
-              <!-- 👇 Insert the new block HERE 👇 -->
-            <div class="intro-container text-center my-4 p-4">
-              <img width="96" height="96" src="https://img.icons8.com/fluency-systems-regular/96/FFFFFF/message-bot.png" alt="message-bot"/>
-              <h3 class="font-weight-bold">Discover Qualified Leads with Confidence</h3>
-              <p style="color: white;">
-                Introducing our Sales Assistant — your reliable resource for strategic prospecting and business development.
-                Whether you are seeking key decision-makers, company intelligence, or tailored lead recommendations,
-                our Sales Assistant is designed to deliver accurate, insightful, and timely support to enhance your sales
-                efforts and drive meaningful connections.
-              </p>
+            <h2 class="splash-title">AsiaPac Lead Finder</h2>
+            <div class="splash-loader">
+                <span></span><span></span><span></span><span></span>
             </div>
-            </div>
-
-            <div class="card-footer">
-              <form id="messageArea" class="input-group">
-                <input
-                  type="text"
-                  id="text"
-                  name="msg"
-                  placeholder="Type your message..."
-                  autocomplete="off"
-                  class="form-control type_msg"
-                  required
-                />
-                <div class="input-group-append">
-                  <button
-                    type="submit"
-                    id="send"
-                    class="input-group-text send_btn"
-                  >
-                    <i class="fas fa-location-arrow"></i>
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
         </div>
-      </div>
     </div>
 
+    <div class="app-container">
+        <!-- Add mobile menu toggle button -->
+        <button class="mobile-menu-toggle d-md-none" id="mobileSidebarToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png" alt="Logo" class="sidebar-logo">
+                <h1 class="sidebar-title">AsiaPac Lead Finder</h1>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="nav-item active" id="nav-chat">
+                        <a href="#"><i class="fas fa-comment-dots"></i> Chat</a>
+                    </li>
+                    <li class="nav-item" id="nav-history">
+                        <a href="#"><i class="fas fa-history"></i> History</a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <span class="version">v1.0.0</span>
+            </div>
+            
+            <!-- Add theme toggle at bottom of sidebar -->
+            <div class="theme-toggle text-center mb-3">
+                <label class="toggle-switch">
+                    <input type="checkbox" id="themeToggle">
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="ms-2 text-sm">Dark Mode</span>
+            </div>
+        </aside>
+        
+        <main class="main-content">
+            <header class="chat-header">
+                <div class="user-info">
+                    <img src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png" alt="AI Assistant" class="user-avatar">
+                    <div class="user-details">
+                        <h2 class="user-name">AsiaPac Lead Finder</h2>
+                        <span class="user-status"><i class="fas fa-circle status-online"></i> Online</span>
+                    </div>
+                </div>
+                
+                <!-- Add notification icon -->
+                <div class="header-actions">
+                    <button class="btn" title="Notifications">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">3</span>
+                    </button>
+                    <button class="btn btn-refresh shimmer-effect" title="New Chat">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <button class="btn btn-clear" title="Clear Chat">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </header>
+            
+            <div class="chat-container">
+                <!-- This is where the chat messages will appear -->
+                <div id="messageFormeight" class="messages-container">
+                    <!-- Welcome message display -->
+                    <div class="intro-container text-center my-4">
+                        <div class="intro-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <h3 class="intro-title">Discover Qualified Leads with Confidence</h3>
+                        <p class="intro-text">
+                            Introducing our Sales Assistant — your reliable resource for strategic prospecting and business development.
+                            Whether you are seeking key decision-makers, company intelligence, or tailored lead recommendations,
+                            our Sales Assistant is designed to deliver accurate, insightful, and timely support to enhance your sales
+                            efforts and drive meaningful connections.
+                        </p>
+                        <div class="intro-suggestions">
+                            <h4>Try asking:</h4>
+                            <div class="suggestion-chips">
+                                <button class="suggestion-chip" onclick="sendSuggestion('Find me leads in the technology sector')">
+                                    <i class="fas fa-search"></i> Find leads in tech sector
+                                </button>
+                                <button class="suggestion-chip" onclick="sendSuggestion('Generate a sales email')">
+                                    <i class="fas fa-envelope"></i> Generate a sales email
+                                </button>
+                                <button class="suggestion-chip" onclick="sendSuggestion('Tell me about cybersecurity companies')">
+                                    <i class="fas fa-shield-alt"></i> Cybersecurity companies
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- History panel (initially hidden) -->
+                <div id="history-panel-display" class="history-panel" style="display: none;">
+                    <h3><i class="fas fa-history"></i> Chat History</h3>
+                    <ul id="history-list" class="history-list"></ul>
+                </div>
+                
+                <!-- Add mood indicator -->
+                <div class="mood-indicator" title="How was your experience?">
+                    <i class="far fa-smile"></i>
+                </div>
+            </div>
+            
+            <footer class="chat-footer">
+                <form id="messageArea" class="message-input-form">
+                    <div class="input-group">
+                        <input type="text" id="text" name="msg" class="form-control message-input" 
+                               placeholder="Type your message..." autocomplete="off" required>
+                        <button type="submit" id="send" class="btn send-button">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </form>
+                <div class="footer-info">
+                    <p>Powered by Azure OpenAI</p>
+                </div>
+            </footer>
+        </main>
+        
+        <!-- Add floating action button for mobile -->
+        <button class="floating-action-button d-md-none">
+            <i class="fas fa-bolt"></i>
+        </button>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
-      window.addEventListener("DOMContentLoaded", function () {
-      const now = new Date();
-      const hours = now.getHours().toString().padStart(2, "0");
-      const minutes = now.getMinutes().toString().padStart(2, "0");
-      const currentTime = `${hours}:${minutes}`;
-      document.getElementById("welcome-time").textContent = currentTime;
-    });
-
-      function scrollToBottom() {
-        var messageBody = document.getElementById("messageFormeight");
-        messageBody.scrollTop = messageBody.scrollHeight;
-      }
-
-      function showTyping() {
-        const now = new Date();
-        const hours = now.getHours().toString().padStart(2, "0");
-        const minutes = now.getMinutes().toString().padStart(2, "0");
-        document.getElementById("typing-indicator").style.display = "flex";
-        document.querySelector("#typing-indicator .img_cont_msg").style.display = "block";
-        document.querySelector("#typing-indicator .typing-dots").style.display = "block";
-        scrollToBottom();
-      }
-      function hideTyping() {
-        document.getElementById("typing-indicator").style.display = "none";
-        document.querySelector("#typing-indicator .img_cont_msg").style.display = "none";
-        document.querySelector("#typing-indicator .typing-dots").style.display = "none";
-      }
-
-      // Function to handle bot response (render it in chat)
-  function handleBotResponse(response) {
-    const date = new Date();
-    const hour = date.getHours();
-    const minute = date.getMinutes();
-    const str_time = hour + ":" + minute;
-
-    let botHtml = "";
-    let formattedResponse = response.replace(/\n/g, "<br>");
-    if (typeof response === "string" && response.startsWith("<table")) {
-      botHtml =
-        '<div class="d-flex justify-content-start mb-4"><div class="img_cont_msg"><img src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png" class="rounded-circle user_img_msg"></div>' +
-        '<div class="msg_cotainer">' +
-        '<div class="table-responsive">' +
-          response +
-        '</div>' + // Render DataFrame as table
-        '<span class="msg_time">' +
-        str_time +
-        "</span></div></div>";
-    } else {
-      botHtml =
-        '<div class="d-flex justify-content-start mb-4"><div class="img_cont_msg"><img src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png" class="rounded-circle user_img_msg"></div>' +
-        '<div class="msg_cotainer">' +
-          formattedResponse +
-        '<span class="msg_time">' +
-        str_time +
-        "</span></div></div>";
-    }
-
-    $("#messageFormeight").append($.parseHTML(botHtml));
-    scrollToBottom();
-  }
-
-  document.addEventListener("DOMContentLoaded", function () {
-    const sendButton = document.getElementById("send"); // Change this to match your actual send button ID
-    const messageInput = document.getElementById("text"); // Change this to your input field's ID
-    const introContainer = document.querySelector(".intro-container");
-
-    if (sendButton && messageInput && introContainer) {
-      sendButton.addEventListener("click", function () {
-        const messageText = messageInput.value.trim();
-        if (messageText !== "") {
-          introContainer.style.display = "none";
+        // Utility functions
+        function scrollToBottom() {
+            var messageBody = document.getElementById("messageFormeight");
+            messageBody.scrollTop = messageBody.scrollHeight;
         }
-      });
-    }
-  });
 
-      function sendMessage(message) {
-            const date = new Date();
-            const str_time = date.getHours() + ":" + date.getMinutes();
+        function getCurrentTime() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, "0");
+            const minutes = now.getMinutes().toString().padStart(2, "0");
+            return `${hours}:${minutes}`;
+        }
 
-            // Append the user's message to the chat
-            var userHtml =
-                `<div class="d-flex justify-content-end mb-4">
-                    <div class="msg_cotainer_send">${message}
-                        <span class="msg_time_send">${str_time}</span>
+        function showTyping() {
+            $("#messageFormeight #typing-indicator").remove();
+            
+            const typingIndicatorHtml = `
+                <div id="typing-indicator" class="message-row bot-message typing-message">
+                    <div class="message-avatar">
+                        <img src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png" alt="Bot">
                     </div>
-                    <div class="img_cont_msg">
-                        <img src="https://i.ibb.co/d5b84Xw/Untitled-design.png" class="rounded-circle user_img_msg">
+                    <div class="message-bubble typing-bubble">
+                        <div class="typing-dots">
+                            <span></span><span></span><span></span>
+                        </div>
                     </div>
-                </div>`;
-            $("#text").val(""); // Clear the input field
-            $("#messageFormeight").append(userHtml);
-
-            // Remove any existing typing indicator before adding a new one
-          $("#messageFormeight #typing-indicator").remove();
-
-          // Dynamically insert typing indicator after the latest user message
-          var typingIndicatorHtml =
-            '<div id="typing-indicator" class="d-flex justify-content-start mb-4" style="display: flex;">' +
-            '<div class="img_cont_msg" style="display: block;">' +
-            '<img src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png" class="rounded-circle user_img_msg">' +
-            '</div>' +
-            '<div class="typing-dots" style="margin-left: 10px; display: block;">' +
-            '<span></span><span></span><span></span>' +
-            '</div>' +
-            '</div>';
-
-          $("#messageFormeight").append(typingIndicatorHtml);
-
-          scrollToBottom();
-          // showTyping(); // No longer needed, handled above
+                </div>
+            `;
+            
+            $("#messageFormeight").append(typingIndicatorHtml);
             scrollToBottom();
+        }
 
-            // Send message to Flask backend via AJAX
+        function hideTyping() {
+            $("#messageFormeight #typing-indicator").remove();
+        }
+
+        function handleBotResponse(response) {
+            const currentTime = getCurrentTime();
+            let botHtml = "";
+            
+            // Check if response is a table
+            if (typeof response === "string" && response.startsWith("<table")) {
+                botHtml = `
+                    <div class="message-row bot-message animate-in">
+                        <div class="message-avatar">
+                            <img src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png" alt="Bot">
+                        </div>
+                        <div class="message-bubble bot-bubble">
+                            <div class="table-responsive">
+                                ${response}
+                            </div>
+                            <span class="message-time">${currentTime}</span>
+                        </div>
+                    </div>
+                `;
+            } else if (typeof response === "object" && response.message && response.buttons) {
+                // Handle button response
+                let buttonHtml = `<p>${response.message}</p><div class="button-container">`;
+                response.buttons.forEach(function(company) {
+                    buttonHtml += `<button class="btn btn-sm btn-primary m-1 btn-response" onclick="sendButtonResponse('${company}')">${company}</button>`;
+                });
+                buttonHtml += "</div>";
+                
+                botHtml = `
+                    <div class="message-row bot-message animate-in">
+                        <div class="message-avatar">
+                            <img src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png" alt="Bot">
+                        </div>
+                        <div class="message-bubble bot-bubble">
+                            ${buttonHtml}
+                            <span class="message-time">${currentTime}</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Regular text response
+                let formattedResponse = response.replace(/\n/g, "<br>");
+                botHtml = `
+                    <div class="message-row bot-message animate-in">
+                        <div class="message-avatar">
+                            <img src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png" alt="Bot">
+                        </div>
+                        <div class="message-bubble bot-bubble">
+                            <p>${formattedResponse}</p>
+                            <span class="message-time">${currentTime}</span>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            $("#messageFormeight").append($.parseHTML(botHtml));
+            scrollToBottom();
+        }
+
+        function sendMessage(message) {
+            const currentTime = getCurrentTime();
+            const userMessageHtml = `
+                <div class="message-row user-message animate-in">
+                    <div class="message-bubble user-bubble">
+                        <p>${message}</p>
+                        <span class="message-time">${currentTime}</span>
+                    </div>
+                    <div class="message-avatar">
+                        <img src="https://i.ibb.co/d5b84Xw/Untitled-design.png" alt="User">
+                    </div>
+                </div>
+            `;
+            
+            // Clear input and add user message
+            $("#text").val("");
+            $("#messageFormeight").append(userMessageHtml);
+            
+            // Hide intro container if visible
+            $(".intro-container").fadeOut();
+            
+            // Show typing indicator
+            showTyping();
+            scrollToBottom();
+            
+            // Send message to backend
             $.ajax({
                 type: "POST",
                 url: "/get",
                 data: { msg: message },
-                success: function (response) {
-                    hideTyping(); // Hide typing indicator after bot reply
+                success: function(response) {
+                    hideTyping();
                     handleBotResponse(response);
+                },
+                error: function() {
+                    hideTyping();
+                    handleBotResponse("I'm sorry, there was an error processing your request. Please try again.");
                 }
             });
         }
 
-      $(document).ready(function () {
-        $("#messageArea").on("submit", function (event) {
-          const date = new Date();
-          const hour = date.getHours();
-          const minute = date.getMinutes();
-          const str_time = hour + ":" + minute;
-          var rawText = $("#text").val();
+        // Suggestion button handler
+        function sendSuggestion(suggestion) {
+            sendMessage(suggestion);
+        }
 
-          var userHtml =
-            '<div class="d-flex justify-content-end mb-4"><div class="msg_cotainer_send">' +
-            rawText +
-            '<span class="msg_time_send">' +
-            str_time +
-            '</span></div><div class="img_cont_msg"><img src="https://i.ibb.co/d5b84Xw/Untitled-design.png" class="rounded-circle user_img_msg"></div></div>';
-
-          $("#text").val("");
-          $("#messageFormeight").append(userHtml);
-
-          // Remove any existing typing indicator before adding a new one
-          $("#messageFormeight #typing-indicator").remove();
-
-          // Dynamically insert typing indicator after the latest user message
-          var typingIndicatorHtml =
-            '<div id="typing-indicator" class="d-flex justify-content-start mb-4" style="display: flex;">' +
-            '<div class="img_cont_msg" style="display: block;">' +
-            '<img src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png" class="rounded-circle user_img_msg">' +
-            '</div>' +
-            '<div class="typing-dots" style="margin-left: 10px; display: block;">' +
-            '<span></span><span></span><span></span>' +
-            '</div>' +
-            '</div>';
-
-          $("#messageFormeight").append(typingIndicatorHtml);
-
-          scrollToBottom();
-          // showTyping(); // No longer needed, handled above
-
-          $.ajax({
-            data: {
-              msg: rawText,
-            },
-            type: "POST",
-            url: "/get",
-          }).done(function (data) {
-            hideTyping(); // Hide typing indicator after bot reply
-            let botHtml = "";
-
-            // Check if response is a DataFrame (converted to HTML table)
-            if (typeof data === "string" && data.startsWith("<table")) {
-                botHtml =
-                    '<div class="d-flex justify-content-start mb-4"><div class="img_cont_msg"><img src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png" class="rounded-circle user_img_msg"></div>' +
-                    '<div class="msg_cotainer">' +
-                    '<div class="table-responsive">' + data + '</div>' + // Render DataFrame as table
-                    '<span class="msg_time">' +
-                    str_time +
-                    "</span></div></div>";
-                    $("#messageFormeight").append($.parseHTML(botHtml));
-            }// 2️⃣ If response contains buttons
-            else if (typeof data === "object" && data.message && data.buttons) {
-                let buttonHtml = `<p>${data.message}</p><div class="button-container">`;
-                  data.buttons.forEach(function (company) {
-                    buttonHtml += `<button class="btn btn-primary m-2 btn-response" onclick="sendButtonResponse('${company}')">${company}</button>`;
-                });
-                buttonHtml += "</div>";
-
-                botHtml =
-                    '<div class="d-flex justify-content-start mb-4"><div class="img_cont_msg"><img src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png" class="rounded-circle user_img_msg"></div>' +
-                    '<div class="msg_cotainer">' +
-                    buttonHtml +
-                    '<span class="msg_time">' +
-                    str_time +
-                    "</span></div></div>";
-                    $("#messageFormeight").append($.parseHTML(botHtml));
-                    scrollToBottom();
-            } 
-            else {
-              let formattedResponse = data.replace(/\n/g, "<br>");
-                botHtml =
-                    '<div class="d-flex justify-content-start mb-4"><div class="img_cont_msg"><img src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png" class="rounded-circle user_img_msg"></div>' +
-                    '<div class="msg_cotainer">' +
-                      formattedResponse +
-                    '<span class="msg_time">' +
-                    str_time +
-                    "</span></div></div>";
-                    $("#messageFormeight").append($.parseHTML(botHtml));
-                    scrollToBottom();
-            }
-          //   🔹 Function to handle button clicks (Sends button text back to Flask)
-          window.sendButtonResponse = function (buttonText) {
+        // Button response handler
+        window.sendButtonResponse = function(buttonText) {
             sendMessage(buttonText);
-          };
-          });
-          event.preventDefault();
-        });
-      });
-
-      // Sidebar navigation click logic
-  document.addEventListener("DOMContentLoaded", function () {
-    // Sidebar nav click handler
-    const navChat = document.getElementById('nav-chat');
-    const navHistory = document.getElementById('nav-history');
-    const historyPanelDisplay = document.getElementById('history-panel-display');
-    const historyListUL = document.getElementById('history-list');
-
-    const API_CHAT_URL = '/chat';
-    const API_CREATE_SESSION_URL = '/create-session';
-    const API_CLEAR_HISTORY_URL = '/clear-backend-history';
-
-    let currentChatSession = createNewFrontendChatObject(); 
-    let chatHistoryIndex = []; 
-    let currentBackendSessionId = null; 
-
-    function generateMessageId() {
-      return `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    }
-
-    // --- Frontend Chat Session & Local History Management ---
-    function createNewFrontendChatObject(id = `chat-${Date.now()}`) {
-        return {
-            id: id, 
-            name: `Chat ${new Date().toLocaleString()}`,
-            messages: [], 
-            timestamp: Date.now()
         };
-    }
 
-    function startNewFrontendChatSession(loadDefaults = true) {
-      currentChatSession = createNewFrontendChatObject(); 
-      // createNewBackendSession(() => {
-      //     console.log("New frontend chat started, associated with new backend session:", currentBackendSessionId);
-      //     // promptInput.focus();
-      // });
-    }
+        // Document ready handlers
+        $(document).ready(function() {
+            // Form submit handler
+            $("#messageArea").on("submit", function(event) {
+                event.preventDefault();
+                const rawText = $("#text").val().trim();
+                if (rawText) {
+                    sendMessage(rawText);
+                }
+            });
+            
+            // Navigation handlers
+            $("#nav-chat").on("click", function() {
+                $(this).addClass("active");
+                $("#nav-history").removeClass("active");
+                $("#messageFormeight").show();
+                $("#history-panel-display").hide();
+            });
+            
+            $("#nav-history").on("click", function() {
+                $(this).addClass("active");
+                $("#nav-chat").removeClass("active");
+                $("#messageFormeight").hide();
+                $("#history-panel-display").show();
+                // Render history list (placeholder)
+                $("#history-list").html("<li class='history-item empty-history'>No chat history yet</li>");
+            });
+            
+            // Clear chat button handler
+            $(".btn-clear").on("click", function() {
+                if (confirm("Are you sure you want to clear this chat?")) {
+                    $("#messageFormeight").html("");
+                    // Show the intro container again
+                    const introContainer = $(".intro-container");
+                    if (introContainer.length) {
+                        $("#messageFormeight").append(introContainer.clone());
+                    } else {
+                        // If intro container was removed, create a new one
+                        // (This is just a placeholder; in a production app you'd likely have this in a template)
+                        $("#messageFormeight").append(`
+                            <div class="intro-container text-center my-4">
+                                <div class="intro-icon">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                                <h3 class="intro-title">Discover Qualified Leads with Confidence</h3>
+                                <p class="intro-text">
+                                    Introducing our Sales Assistant — your reliable resource for strategic prospecting and business development.
+                                </p>
+                                <div class="intro-suggestions">
+                                    <h4>Try asking:</h4>
+                                    <div class="suggestion-chips">
+                                        <button class="suggestion-chip" onclick="sendSuggestion('Find me leads in the technology sector')">
+                                            <i class="fas fa-search"></i> Find leads in tech sector
+                                        </button>
+                                        <button class="suggestion-chip" onclick="sendSuggestion('Generate a sales email')">
+                                            <i class="fas fa-envelope"></i> Generate a sales email
+                                        </button>
+                                        <button class="suggestion-chip" onclick="sendSuggestion('Tell me about cybersecurity companies')">
+                                            <i class="fas fa-shield-alt"></i> Cybersecurity companies
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `);
+                    }
+                }
+            });
+            
+            // New chat button handler
+            $(".btn-refresh").on("click", function() {
+                if (confirm("Start a new chat?")) {
+                    // Clear current chat and show intro
+                    $("#messageFormeight").html("");
+                    const introContainer = $(".intro-container");
+                    if (introContainer.length) {
+                        $("#messageFormeight").append(introContainer.clone());
+                    }
+                    
+                    // You could also send a request to reset the chat session on the server
+                    // $.post("/create-session", function(data) {
+                    //     console.log("New chat session created:", data.session_id);
+                    // });
+                }
+            });
+            
+            // Focus on input field when page loads
+            $("#text").focus();
+            
+            // Apply ripple effect to all buttons
+            const buttons = document.querySelectorAll('.btn, .btn-response, .suggestion-chip');
+            buttons.forEach(button => {
+                button.addEventListener('click', createRipple);
+            });
+            
+            // Mobile sidebar toggle
+            $('#mobileSidebarToggle').on('click', function() {
+                $('.sidebar').toggleClass('show');
+            });
+            
+            // Theme toggle functionality
+            $('#themeToggle').on('change', function() {
+                if ($(this).is(':checked')) {
+                    $('body').addClass('dark-theme');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    $('body').removeClass('dark-theme');
+                    localStorage.setItem('theme', 'light');
+                }
+            });
+            
+            // Load saved theme
+            if (localStorage.getItem('theme') === 'dark') {
+                $('#themeToggle').prop('checked', true).trigger('change');
+            }
+            
+            // Floating action button handler
+            $('.floating-action-button').on('click', function() {
+                $('#text').focus();
+            });
+            
+            // Mood indicator handler
+            $('.mood-indicator').on('click', function() {
+                const icon = $(this).find('i');
+                if (icon.hasClass('fa-smile')) {
+                    icon.removeClass('fa-smile').addClass('fa-grin-hearts');
+                } else if (icon.hasClass('fa-grin-hearts')) {
+                    icon.removeClass('fa-grin-hearts').addClass('fa-frown');
+                } else {
+                    icon.removeClass('fa-frown').addClass('fa-smile');
+                }
+            });
+            
+            // Enhance table styles
+            setTimeout(() => {
+                $('.table').addClass('table-enhanced');
+            }, 1000);
+        });
+        
+        // Add ripple effect to buttons
+        function createRipple(event) {
+            const button = event.currentTarget;
+            const ripple = document.createElement('span');
+            const rect = button.getBoundingClientRect();
+            
+            const size = Math.max(rect.width, rect.height);
+            const x = event.clientX - rect.left - size / 2;
+            const y = event.clientY - rect.top - size / 2;
+            
+            ripple.style.width = ripple.style.height = `${size}px`;
+            ripple.style.left = `${x}px`;
+            ripple.style.top = `${y}px`;
+            ripple.classList.add('ripple');
+            
+            button.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        }
+        
+        // Improve table rendering with badges for industries
+        function enhanceTableAfterRender() {
+            // Add badges to industry cells
+            $('.table td:contains("Technology")').html('<span class="badge-custom badge-tech">Technology</span>');
+            $('.table td:contains("Finance")').html('<span class="badge-custom badge-finance">Finance</span>');
+            $('.table td:contains("Healthcare")').html('<span class="badge-custom badge-health">Healthcare</span>');
+            
+            // Add tooltips to complex cells
+            $('.table td').each(function() {
+                const text = $(this).text();
+                if (text.length > 50) {
+                    const shortText = text.substring(0, 47) + '...';
+                    $(this).html(`
+                        <div class="tooltip-custom">
+                            ${shortText}
+                            <span class="tooltip-text">${text}</span>
+                        </div>
+                    `);
+                }
+            });
+        }
+        
+        // Call after AJAX responses that render tables
+        function handleBotResponse(response) {
+            // ...existing handleBotResponse code...
+            
+            // If response contains a table, enhance it
+            if (typeof response === "string" && response.startsWith("<table")) {
+                setTimeout(enhanceTableAfterRender, 100);
+            }
+        }
 
-    function saveCurrentFrontendChatSession() { 
-      if (!currentChatSession || !currentChatSession.id) return;
-      
-      const isExistingInHistory = chatHistoryIndex.some(entry => entry.id === currentChatSession.id);
-      if (currentChatSession.messages.length === 0 && !currentChatSession.systemPrompt.trim() && !isExistingInHistory) {
-            console.log("Skipping save for new, entirely empty chat session:", currentChatSession.id);
-            return;
-      }
-
-      // currentChatSession.systemPrompt = systemPromptInput.value;
-      // currentChatSession.model = modelSelect.value; // Overall session model, individual messages might vary if setting changes
-      // currentChatSession.temperature = parseFloat(temperatureSlider.value);
-      // currentChatSession.timestamp = Date.now(); // Update timestamp on every save
-
-      // Name derivation logic
-      if (currentChatSession.name.startsWith("Chat ") || currentChatSession.messages.length === 0) {
-          if (currentChatSession.messages.length > 0) {
-              const firstUserMessage = currentChatSession.messages.find(m => m.sender === 'user');
-              if (firstUserMessage && firstUserMessage.text) {
-                  currentChatSession.name = firstUserMessage.text.substring(0, 30) + (firstUserMessage.text.length > 30 ? '...' : '');
-              } else { // No user message or empty, use generic
-                  currentChatSession.name = `Chat ${new Date(currentChatSession.timestamp).toLocaleString()}`;
-              }
-          } else { // No messages, use generic
-              currentChatSession.name = `Chat ${new Date(currentChatSession.timestamp).toLocaleString()}`;
-          }
-      }
-      // If name was manually set (doesn't start with "Chat ") and there are still messages, keep it.
-
-      localStorage.setItem(currentChatSession.id, JSON.stringify(currentChatSession));
-      
-      const indexEntry = chatHistoryIndex.find(entry => entry.id === currentChatSession.id);
-      if (indexEntry) {
-          if(indexEntry.name !== currentChatSession.name) indexEntry.name = currentChatSession.name;
-          // indexEntry.timestamp = currentChatSession.timestamp; // Already updated if name changed
-      } else {
-          chatHistoryIndex.push({ 
-              id: currentChatSession.id, 
-              name: currentChatSession.name,
-              timestamp: currentChatSession.timestamp 
-          });
-      }
-      chatHistoryIndex.sort((a, b) => b.timestamp - a.timestamp); 
-      localStorage.setItem(CHAT_HISTORY_INDEX_KEY, JSON.stringify(chatHistoryIndex));
-      renderHistoryList(); 
-      updateChatPromptHeader();
-      console.log("Frontend chat session saved to localStorage:", currentChatSession.id);
-  }
-
-    function loadChatHistoryIndex() { 
-      const storedIndex = localStorage.getItem(CHAT_HISTORY_INDEX_KEY);
-      if (storedIndex) {
-          chatHistoryIndex = JSON.parse(storedIndex);
-          chatHistoryIndex.sort((a, b) => b.timestamp - a.timestamp);
-      } else {
-          chatHistoryIndex = [];
-      }
-      renderHistoryList();
-    }
-
-    function loadFrontendChatSession(frontendSessionId) {
-      const sessionData = localStorage.getItem(frontendSessionId);
-      if (sessionData) {
-          currentChatSession = JSON.parse(sessionData); 
-          // systemPromptInput.value = currentChatSession.systemPrompt || ''; 
-          // modelSelect.value = currentChatSession.model || DEFAULT_MODEL_ID;
-          // updateTemperatureUI(currentChatSession.temperature || DEFAULT_TEMPERATURE);
-          // updateModelInfo(modelSelect.value); 
-
-          chatOutput.innerHTML = ''; 
-          if (currentChatSession.messages && currentChatSession.messages.length > 0) {
-              // hideWelcomeMessage();
-              currentChatSession.messages.forEach(msg => {
-                  // Ensure older messages without IDs get one for DOM keying, but don't save it back to the object
-                  const msgToRender = {...msg};
-                  if (!msgToRender.id) msgToRender.id = generateMessageId(); // Temporary for rendering
-                  addMessageToChatDOM(msgToRender); 
-              });
-          } else {
-              renderWelcomeMessage();
-          }
-          
-          adjustTextareaHeight(systemPromptInput);
-          switchToChatView(); 
-          updateChatPromptHeader();
-          
-          createNewBackendSession(() => {
-              console.log("Loaded frontend chat session:", frontendSessionId, "Associated with new backend session:", currentBackendSessionId);
-              promptInput.focus();
-          });
-      }
-  }
-
-
-    function renderHistoryList() { 
-      historyListUL.innerHTML = '';
-      chatHistoryIndex.forEach(entry => {
-          const li = document.createElement('li');
-          li.classList.add('history-item');
-          li.dataset.sessionId = entry.id; 
-          if (currentChatSession && entry.id === currentChatSession.id) {
-              li.classList.add('selected-history');
-          }
-
-          const nameSpan = document.createElement('span');
-          nameSpan.classList.add('history-item-name');
-          nameSpan.textContent = entry.name || `Chat ${new Date(entry.timestamp).toLocaleDateString()}`;
-          li.appendChild(nameSpan);
-
-          const deleteBtn = document.createElement('button');
-          deleteBtn.classList.add('history-item-delete');
-          deleteBtn.innerHTML = '×'; 
-          deleteBtn.title = "Delete local chat";
-          deleteBtn.onclick = (event) => deleteFrontendChatSession(entry.id, event);
-          li.appendChild(deleteBtn);
-          
-          li.onclick = () => {
-                document.querySelectorAll('.history-item.selected-history').forEach(item => item.classList.remove('selected-history'));
-                li.classList.add('selected-history');
-                loadFrontendChatSession(entry.id); 
-          }
-          historyListUL.appendChild(li);
-      });
-    }
-
-    navChat.addEventListener('click', function() {
-      // Show chat panel
-      document.getElementById("messageFormeight").style.display = "";
-      document.getElementById("history-panel-display").style.display = "none";
-      renderHistoryList();
-    });
-
-    navHistory.addEventListener('click', function() {
-      // Show history panel
-      document.getElementById("messageFormeight").style.display = "none";
-      historyPanelDisplay.style.display = "block";
-      renderHistoryList();
-    });
-    // Default: show chat, hide history
-    document.getElementById("messageFormeight").style.display = "";
-    document.getElementById("history-panel-display").style.display = "none";
-  });
+        // Hide splash screen and show app content
+        $(window).on('load', function() {
+            $('#splash-screen').fadeOut(500, function() {
+                $('.app-container').fadeIn(500);
+            });
+        });
     </script>
-  </body>
+</body>
 </html>

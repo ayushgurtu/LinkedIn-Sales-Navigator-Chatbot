@@ -1,3 +1,14 @@
 flask
 transformers
 torch
+flask_cors
+pandas
+openai
+sqlalchemy
+langchain
+langchain-core
+python-dotenv
+markdown2
+beautifulsoup4
+langchain_community
+azure-cosmos

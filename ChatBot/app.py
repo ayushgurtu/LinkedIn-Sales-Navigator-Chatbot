@@ -5,15 +5,16 @@ import threading
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
 
-# from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 import pandas as pd
-import sqlite3
+# Remove sqlite3 import
+from azure.cosmos import CosmosClient, PartitionKey, exceptions
 from openai import AzureOpenAI
 import os
 import re
+# Update SQLAlchemy references
 from sqlalchemy.exc import OperationalError
 import ast
-from sqlalchemy import create_engine
+# Remove SQLite engine creation
 from langchain.sql_database import SQLDatabase
 from dotenv import load_dotenv
 import markdown2
@@ -29,10 +30,30 @@ history_lock = threading.Lock()
 # Load environment variables from .env file
 load_dotenv()
 
-# tokenizer = AutoTokenizer.from_pretrained("microsoft/DialoGPT-medium")
-# model = AutoModelForCausalLM.from_pretrained("microsoft/DialoGPT-medium")
+# Add Cosmos DB configuration
+COSMOS_ENDPOINT = os.getenv("COSMOS_ENDPOINT")
+COSMOS_KEY = os.getenv("COSMOS_KEY")
+COSMOS_DATABASE = os.getenv("COSMOS_DATABASE", "linkedin_data")
+COSMOS_CONTAINER = os.getenv("COSMOS_CONTAINER", "employees")
+COSMOS_TEMP_CONTAINER = os.getenv("COSMOS_TEMP_CONTAINER", "temp_employees")
 
+# Initialize Cosmos DB client
+cosmos_client = CosmosClient(COSMOS_ENDPOINT, credential=COSMOS_KEY)
 
+# Create or get database and containers
+database = cosmos_client.create_database_if_not_exists(id=COSMOS_DATABASE)
+employees_container = database.create_container_if_not_exists(
+    id=COSMOS_CONTAINER, 
+    partition_key=PartitionKey(path="/company"),
+    offer_throughput=400
+)
+temp_container = database.create_container_if_not_exists(
+    id=COSMOS_TEMP_CONTAINER,
+    partition_key=PartitionKey(path="/company"),
+    offer_throughput=400
+)
+
+# Azure OpenAI configuration
 AZURE_SEARCH_ENDPOINT = os.getenv("AZURE_SEARCH_ENDPOINT")
 AZURE_SEARCH_KEY = os.getenv("AZURE_SEARCH_KEY")  # Ensure this is your Admin Key
 AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")
@@ -41,8 +62,6 @@ AZURE_OPENAI_API_VERSION = os.getenv("AZURE_OPENAI_API_VERSION")
 AZURE_OPENAI_CHAT_MODEL = os.getenv("AZURE_OPENAI_CHAT_MODEL")
 AZURE_OPENAI_EMBEDDINGS = os.getenv("AZURE_OPENAI_EMBEDDINGS")
 search_index = os.getenv("AZURE_SEARCH_INDEX_NAME")
-
-engine_azure = create_engine('sqlite:///output_db.sqlite')
 
 # Initialize Azure OpenAI Service client with key-based authentication    
 client = AzureOpenAI(  
@@ -362,10 +381,18 @@ app = Flask(__name__, static_folder='static')
 
 @app.route("/")
 def index():
-    conn = sqlite3.connect('output_db.sqlite')
-    c = conn.cursor()
-    c.execute('DROP TABLE IF EXISTS temp_employees')
-    conn.commit()
+    # Clear temp container instead of dropping table
+    try:
+        # Delete all documents in temp container
+        for item in temp_container.query_items(
+            query="SELECT * FROM c",
+            enable_cross_partition_query=True
+        ):
+            temp_container.delete_item(item, partition_key=item.get('company', ''))
+        logging.info("Cleared temp_employees container")
+    except Exception as e:
+        logging.error(f"Error clearing temp container: {str(e)}")
+    
     return render_template('chat.html')
 
 
@@ -411,23 +438,30 @@ def clear_backend_history_route():
             
     return jsonify({'status': 'success', 'message': message})
 
+# New route to clear history
+@app.route('/clear-chat', methods=['POST'])
+def clear_chat():
+    try:
+        # Clear temp container
+        for item in temp_container.query_items(
+            query="SELECT * FROM c",
+            enable_cross_partition_query=True
+        ):
+            temp_container.delete_item(item, partition_key=item.get('company', ''))
+        
+        # Reset global variables
+        global search_results_text, response_email
+        search_results_text = pd.DataFrame()
+        response_email = ''
+        
+        return jsonify({'status': 'success', 'message': 'Chat session cleared'}), 200
+    except Exception as e:
+        logging.error(f"Error in /clear-chat: {str(e)}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
 def get_Chat_response(text):
 
     global search_results_text, response_email
-
-    # Let's chat for 5 lines
-    # for step in range(5):
-    #     # encode the new user input, add the eos_token and return a tensor in Pytorch
-    #     new_user_input_ids = tokenizer.encode(str(text) + tokenizer.eos_token, return_tensors='pt')
-
-    #     # append the new user input tokens to the chat history
-    #     bot_input_ids = torch.cat([chat_history_ids, new_user_input_ids], dim=-1) if step > 0 else new_user_input_ids
-
-    #     # generated a response while limiting the total chat history to 1000 tokens, 
-    #     chat_history_ids = model.generate(bot_input_ids, max_length=1000, pad_token_id=tokenizer.eos_token_id)
-
-    #     # pretty print last ouput tokens from bot
-    #     return tokenizer.decode(chat_history_ids[:, bot_input_ids.shape[-1]:][0], skip_special_tokens=True)
 
     if not("mail" in text.lower() or "email" in text.lower()): #or "word" in text.lower() or "words" in text.lower() or "shorten" in text.lower() or "rewrite" in text.lower() or "limit" in text.lower() or "condense" in text.lower() or "reduce" in text.lower()
 
@@ -443,222 +477,144 @@ def get_Chat_response(text):
         else:
             user_query = text
             rag_prompt = """
-            You are an AI that generates SQL queries based on user requests.  
-            You will use two tables: 'employees' and 'temp_employees', both of which have the same schema:
+            You are an AI that converts natural language to Cosmos DB SQL queries based on user requests.  
+            You will use two containers in Cosmos DB: 'employees' and 'temp_employees', both of which have the same schema:
 
             - full_name (TEXT)
             - full_name_url (TEXT)
             - role (TEXT)
             - company (TEXT)
-            - time (INT)
+            - time (NUMBER)
             - activity (TEXT)
             - interests (TEXT)
             - experience_overview (TEXT)
             - experience_details (TEXT)
 
             Always return **only** the SQL query without explanation or extra text.  
-            Use proper SQL formatting.  
+            Use proper SQL formatting for Cosmos DB.
 
-            **Table Usage:**
-            - Begin with querying the **'employees'** table.
-            - The results of the query should be stored in the **'temp_employees'** table. For any future queries, use **'temp_employees'** as the reference table unless explicitly stated to query the original **'employees'** table.  
+            **Container Usage:**
+            - Begin with querying the **'employees'** container.
+            - For follow-up queries, use the **'temp_employees'** container as the reference.
 
             **Examples:**  
             Example 1: Input
             Retrieve all employees working at 'Google'.
-            SELECT *  
-            FROM employees  
-            WHERE company LIKE '%Google%';  
+
+            Example 1: Output
+            SELECT * FROM employees WHERE CONTAINS(employees.company, 'Google')
 
             Example 2: Input
             List all employees who have 'AI' in their interests.
 
             Example 2: Output
-            SELECT *  
-            FROM employees  
-            WHERE interests LIKE '%AI%';  
+            SELECT * FROM employees WHERE CONTAINS(employees.interests, 'AI')
 
             Example 3: Input
-            Retrieve all employees with 'Software Engineer' as their role.
-
-            Example 3: Output
-            SELECT *  
-            FROM employees  
-            WHERE role LIKE '%Software Engineer';  
-
-
-            Example 4: Input
             Filter all employees whose experience is greater than 10 years.
 
+            Example 3: Output
+            SELECT * FROM employees WHERE employees.time > 10
+
+            Example 4: Input
+            Use the results from previous queries and filter those with a 'Software Engineer' role.
+            
             Example 4: Output
-            SELECT *  
-            FROM employees
-            WHERE time > 10;
-
-            Example 5: Input
-            Filter all employees whose experience is less than 10 years.
-
-            Example 5: Output
-            SELECT *  
-            FROM employees  
-            WHERE time < 10;
-
-            Example 6: Input
-            Filter all employees whose experience is less than 10 years in Accenture.
-
-            Example 6: Output
-            SELECT *  
-            FROM employees  
-            WHERE time < 10 and company LIKE '%Accenture%';  
-
-            Example 9: Input
-            Generate Employees
-            
-            Example 9: Output
-            SELECT *  
-            FROM employees;
-
-            Example 9: Input
-            Show Employees
-            
-            Example 9: Output
-            SELECT *  
-            FROM employees;
-
-            Example 9: Input
-            Give me employees details
-            
-            Example 9: Output
-            SELECT *  
-            FROM employees;
-
-            Example 7: Input
-            Use the results from previous queries and filter those with a 'Software Engineer' role from the previous results.
-            
-            Example 7: Output
-            SELECT *  
-            FROM temp_employees  
-            WHERE role = 'Software Engineer';
-
-            Example 8: Input
-            Use the previous results to query and filter for those with 'AI' in their interests from the previous results.
-            
-            Example 8: Output
-            SELECT *  
-            FROM temp_employees  
-            WHERE interests LIKE '%AI%';
-
-            Example 9: Input
-            Use the results from previous queries and filter those employees working at 'Google' from the previous results.
-            
-            Example 9: Output
-            SELECT *  
-            FROM temp_employees  
-            WHERE company = 'Google';
-
+            SELECT * FROM temp_employees WHERE CONTAINS(temp_employees.role, 'Software Engineer')
             """
 
 
             final_answer = generate_chat_response(rag_prompt, user_query = user_query)
 
-            # Regular expression to extract SQL query
-            match = re.search(r"```sql\n(.*?)\n```", final_answer, re.DOTALL)
-
-            # Extracted SQL query
-            sql_query = match.group(1) if match else final_answer  # Fallback to original if no match
-
-
-            # print(sql_query)
+            # Extract the SQL query - update regex for possible different formatting
+            match = re.search(r"```sql\n(.*?)\n```|SELECT.*?;?$", final_answer, re.DOTALL)
+            sql_query = match.group(1) if match and match.group(1) else final_answer
 
             if 'SELECT' not in sql_query:
-                # adding the response from the llm to the screen (and chat)
-                return(sql_query)
-                # with st.chat_message("assistant"):
-                #     st.write(sql_query)
-
-                #     st.session_state.messages.append(AIMessage(sql_query))
+                return sql_query
             else:
-
-                database = SQLDatabase(engine_azure, view_support=True)
-                output = database.run(sql_query)
-
-                if output == '':
-
-                    return("No result found")
-                    # with st.chat_message("assistant"):
-                    #     st.write("No result found")
-
-                    #     st.session_state.messages.append(AIMessage("No result found"))
-                else:
-
-                    # Convert the string to a Python list of tuples
-                    output = ast.literal_eval(output)
-                    # Define column names
-                    columns = ["Full Name", "LinkedIn URL", "Role", "Company", "Years of Experience",
-                                "Activity", "Interests", "Experience Overview", "Experience Details"]
-
-                    # Convert list of tuples to DataFrame
-                    df = pd.DataFrame(output, columns=columns)
-
+                try:
+                    # Determine which container to query
+                    target_container = temp_container if 'temp_employees' in sql_query else employees_container
+                    
+                    # Convert SQL query to Cosmos DB format if needed
+                    cosmos_query = sql_query.replace('employees.', 'c.')
+                    cosmos_query = cosmos_query.replace('temp_employees.', 'c.')
+                    cosmos_query = cosmos_query.replace('FROM employees', 'FROM c')
+                    cosmos_query = cosmos_query.replace('FROM temp_employees', 'FROM c')
+                    
+                    # Execute query
+                    items = list(target_container.query_items(
+                        query=cosmos_query,
+                        enable_cross_partition_query=True
+                    ))
+                    
+                    if not items:
+                        return "No result found"
+                    
+                    # Convert to DataFrame
+                    df = pd.DataFrame(items)
+                    
+                    # Rename columns to match expected format
+                    columns_mapping = {
+                        'id': 'id',
+                        'full_name': 'Full Name', 
+                        'full_name_url': 'LinkedIn URL',
+                        'role': 'Role', 
+                        'company': 'Company', 
+                        'time': 'Years of Experience',
+                        'activity': 'Activity', 
+                        'interests': 'Interests', 
+                        'experience_overview': 'Experience Overview', 
+                        'experience_details': 'Experience Details'
+                    }
+                    
+                    df = df.rename(columns=columns_mapping)
+                    
+                    # Store results in temp container
+                    if target_container == employees_container:
+                        # Clear temp container first
+                        for item in temp_container.query_items(
+                            query="SELECT * FROM c",
+                            enable_cross_partition_query=True
+                        ):
+                            try:
+                                temp_container.delete_item(item, partition_key=item.get('company', ''))
+                            except:
+                                pass
+                        
+                        # Store results in temp container
+                        for _, row in df.iterrows():
+                            document = {
+                                'id': str(uuid4()),
+                                'full_name': row.get('Full Name', ''),
+                                'full_name_url': row.get('LinkedIn URL', ''),
+                                'role': row.get('Role', ''),
+                                'company': row.get('Company', ''),
+                                'time': row.get('Years of Experience', 0),
+                                'activity': row.get('Activity', ''),
+                                'interests': row.get('Interests', ''),
+                                'experience_overview': row.get('Experience Overview', ''),
+                                'experience_details': row.get('Experience Details', '')
+                            }
+                            temp_container.create_item(body=document)
+                    
                     search_results_text = df
                     unique_companies = df["Company"].dropna().unique().tolist()
-
-
+                    
                     if len(unique_companies) > 1 and 'company' in sql_query:
-                        # return("I found the following companies based on your input: ")
-                        unique_companies = df["Company"].dropna().unique().tolist()
-
                         response = {
                             "message": "I found the following companies based on your input:",
                             "buttons": unique_companies
                         }
                         return jsonify(response)
-
                     else:
-
-                        conn = sqlite3.connect('output_db.sqlite')
-                        c = conn.cursor()
-
-                        c.execute('CREATE TABLE IF NOT EXISTS temp_employees (full_name text, full_name_url text, role text, company text, time int, activity text, interests text, experience_overview text, experience_details text)')
-                        conn.commit()
-
-                        df.to_sql('temp_employees', conn, if_exists='replace', index = False)
-
-                        # Fill missing values (NaN) with an empty string or any preferred default
                         df = df.fillna("N/A")
-
-                        result = df
-
-
-                        result.columns = ["Full Name", "LinkedIn URL", "Role", "Company", "Years of Experience", 
-                                "Activity", "Interests", "Experience Overview", "Experience Details"]
-
-                        search_results_text = result
-                        # adding the response from the llm to the screen (and chat)
-
-                        # print(result)
-                        return (result.to_html(classes="table table-striped", index=False))
-                        # with st.chat_message("assistant"):
-                        #     st.write(result)
-
-                        #     st.session_state.messages.append(AIMessage(result))
-
-    
-    # elif("shorten" in text.lower() or "rewrite" in text.lower() or "limit" in text.lower() or "condense" in text.lower() or "reduce" in text.lower()):
-
-    #     response = generate_rag(input_text = text)
-        
-    #     response_email = response
-
-    #     return(response)
-        
-    #     # adding the response from the llm to the screen (and chat)
-    #     # with st.chat_message("assistant"):
-    #     #     st.write(response)
-
-    #     #     st.session_state.messages.append(AIMessage(response))
-
-
+                        return (df.to_html(classes="table table-striped", index=False))
+                
+                except Exception as e:
+                    logging.error(f"Database error: {str(e)}")
+                    return f"I encountered an error processing your request: {str(e)}"
     else:
         response = generate_rag(input_text = text)
         
