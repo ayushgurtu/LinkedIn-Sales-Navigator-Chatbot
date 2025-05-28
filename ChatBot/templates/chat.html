@@ -20,7 +20,9 @@
     <div id="splash-screen" class="splash-screen">
         <div class="splash-content">
             <div class="splash-logo">
-                <img src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png" alt="Logo">
+                <img src="{{ url_for('static', filename='images/logo-dark.png') }}" alt="Logo" class="theme-logo"
+                    data-logo-dark="{{ url_for('static', filename='images/logo-dark.png') }}"
+                    data-logo-light="{{ url_for('static', filename='images/logo-light.png') }}">
                 <div class="splash-logo-glow"></div>
             </div>
             <h2 class="splash-title">AsiaPac Lead Finder</h2>
@@ -38,8 +40,11 @@
 
         <aside class="sidebar">
             <div class="sidebar-header">
-                <img src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png" alt="Logo" class="sidebar-logo">
-                <h1 class="sidebar-title">AsiaPac Lead Finder</h1>
+                <img src="{{ url_for('static', filename='images/logo-dark.png') }}" alt="Logo"
+                    class="sidebar-logo theme-logo"
+                    data-logo-dark="{{ url_for('static', filename='images/logo-dark.png') }}"
+                    data-logo-light="{{ url_for('static', filename='images/logo-light.png') }}">
+                <!-- Removing the sidebar-title to give logo more space -->
             </div>
             <nav class="sidebar-nav">
                 <ul>
@@ -61,13 +66,14 @@
                     <input type="checkbox" id="themeToggle">
                     <span class="toggle-slider"></span>
                 </label>
-                <span class="ms-2 text-sm">Dark Mode</span>
+                <span class="ms-2 text-sm theme-label">Dark Mode</span>
             </div>
         </aside>
 
         <main class="main-content">
             <header class="chat-header">
                 <div class="user-info">
+                    <!-- Use default AI avatar instead of company logo -->
                     <img src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png" alt="AI Assistant" class="user-avatar">
                     <div class="user-details">
                         <h2 class="user-name">AsiaPac Lead Finder</h2>
@@ -75,18 +81,27 @@
                     </div>
                 </div>
 
-                <!-- Add notification icon -->
+                <!-- Context-aware header actions -->
                 <div class="header-actions">
-                    <button class="btn" title="Notifications">
-                        <i class="fas fa-bell"></i>
-                        <span class="notification-badge">3</span>
-                    </button>
-                    <button class="btn btn-refresh shimmer-effect" title="New Chat">
-                        <i class="fas fa-plus"></i>
-                    </button>
-                    <button class="btn btn-clear" title="Clear Chat">
-                        <i class="fas fa-trash"></i>
-                    </button>
+                    <!-- Chat view buttons -->
+                    <div id="chat-actions">
+                        <button class="btn btn-refresh shimmer-effect" title="New Chat">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <button class="btn btn-clear" title="Clear Chat">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- History view buttons -->
+                    <div id="history-actions" style="display: none;">
+                        <button class="btn btn-export" title="Export History">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button class="btn btn-clear-history" title="Clear All History">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
                 </div>
             </header>
 
@@ -102,11 +117,6 @@
                         <p class="intro-text">
                             Introducing our Sales Assistant — your reliable resource for strategic prospecting and
                             business development.
-                            Whether you are seeking key decision-makers, company intelligence, or tailored lead
-                            recommendations,
-                            our Sales Assistant is designed to deliver accurate, insightful, and timely support to
-                            enhance your sales
-                            efforts and drive meaningful connections.
                         </p>
                         <div class="intro-suggestions">
                             <h4>Try asking:</h4>
@@ -178,11 +188,21 @@
             return `${hours}:${minutes}`;
         }
 
+        // Store keep visible interval reference globally
+        let keepVisibleInterval;
+
+        // Enhanced typing indicator that serves as loading indicator
         function showTyping() {
+            // First remove any existing typing indicators
             $("#messageFormeight #typing-indicator").remove();
 
+            // Clear any existing interval
+            if (keepVisibleInterval) {
+                clearInterval(keepVisibleInterval);
+            }
+
             const typingIndicatorHtml = `
-                <div id="typing-indicator" class="message-row bot-message typing-message">
+                <div id="typing-indicator" class="message-row bot-message typing-message animate-in">
                     <div class="message-avatar">
                         <img src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png" alt="Bot">
                     </div>
@@ -196,10 +216,36 @@
 
             $("#messageFormeight").append(typingIndicatorHtml);
             scrollToBottom();
+
+            // Make sure the typing indicator remains visible if user scrolls
+            keepVisibleInterval = setInterval(() => {
+                if ($("#typing-indicator").length > 0) {
+                    scrollToBottom();
+                } else {
+                    clearInterval(keepVisibleInterval);
+                }
+            }, 1000);
+
+            // Debug log to verify the typing indicator was created
+            console.log("Typing indicator shown", $("#typing-indicator").length);
         }
 
         function hideTyping() {
-            $("#messageFormeight #typing-indicator").remove();
+            // Clear the interval
+            if (keepVisibleInterval) {
+                clearInterval(keepVisibleInterval);
+                keepVisibleInterval = null;
+            }
+
+            // Only try to remove if it exists
+            const $typingIndicator = $("#messageFormeight #typing-indicator");
+            if ($typingIndicator.length) {
+                $typingIndicator.fadeOut(300, function () {
+                    $(this).remove();
+                    // Debug log to verify removal
+                    console.log("Typing indicator removed");
+                });
+            }
         }
 
         function handleBotResponse(response) {
@@ -287,24 +333,43 @@
             // Hide intro container if visible
             $(".intro-container").fadeOut();
 
-            // Show typing indicator
+            // Disable the send button and input while processing
+            $("#send").prop('disabled', true);
+            $("#text").prop('disabled', true).attr('placeholder', 'Waiting for response...');
+
+            // Show typing indicator as our loading indicator and ensure it's rendered
             showTyping();
             scrollToBottom();
 
-            // Send message to backend
-            $.ajax({
-                type: "POST",
-                url: "/get",
-                data: { msg: message },
-                success: function (response) {
-                    hideTyping();
-                    handleBotResponse(response);
-                },
-                error: function () {
-                    hideTyping();
-                    handleBotResponse("I'm sorry, there was an error processing your request. Please try again.");
-                }
-            });
+            // Small delay to ensure the typing indicator is visible before API call starts
+            setTimeout(() => {
+                // Send message to backend
+                $.ajax({
+                    type: "POST",
+                    url: "/get",
+                    data: { msg: message },
+                    success: function (response) {
+                        // Hide typing with a slight delay for better UX
+                        setTimeout(() => {
+                            hideTyping();
+                            handleBotResponse(response);
+                            // Re-enable the send button and input
+                            $("#send").prop('disabled', false);
+                            $("#text").prop('disabled', false).attr('placeholder', 'Type your message...');
+                        }, 500);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("API Error:", status, error);
+                        setTimeout(() => {
+                            hideTyping();
+                            handleBotResponse("I'm sorry, there was an error processing your request. Please try again.");
+                            // Re-enable the send button and input
+                            $("#send").prop('disabled', false);
+                            $("#text").prop('disabled', false).attr('placeholder', 'Type your message...');
+                        }, 500);
+                    }
+                });
+            }, 100); // Small delay to ensure the typing indicator is displayed
         }
 
         // Suggestion button handler
@@ -316,6 +381,17 @@
         window.sendButtonResponse = function (buttonText) {
             sendMessage(buttonText);
         };
+
+        // Function to update logos based on current theme
+        function updateLogos() {
+            const isDarkTheme = $('body').hasClass('dark-theme');
+            $('.theme-logo').each(function () {
+                const logoSrc = isDarkTheme ?
+                    $(this).attr('data-logo-dark') :
+                    $(this).attr('data-logo-light');
+                $(this).attr('src', logoSrc);
+            });
+        }
 
         // Document ready handlers
         $(document).ready(function () {
@@ -334,6 +410,15 @@
                 $("#nav-history").removeClass("active");
                 $("#messageFormeight").show();
                 $("#history-panel-display").hide();
+                
+                // Update header context with smooth transition
+                $("#chat-actions").css({opacity: 0, transform: 'translateY(-10px)'}).show();
+                $("#history-actions").css({opacity: 1, transform: 'translateY(0)'}).fadeOut(200);
+                
+                setTimeout(function() {
+                    $(".user-name").text("AsiaPac Lead Finder");
+                    $("#chat-actions").css({opacity: 1, transform: 'translateY(0)'});
+                }, 200);
             });
 
             $("#nav-history").on("click", function () {
@@ -341,6 +426,16 @@
                 $("#nav-chat").removeClass("active");
                 $("#messageFormeight").hide();
                 $("#history-panel-display").show();
+                
+                // Update header context with smooth transition
+                $("#history-actions").css({opacity: 0, transform: 'translateY(-10px)'}).show();
+                $("#chat-actions").css({opacity: 1, transform: 'translateY(0)'}).fadeOut(200);
+                
+                setTimeout(function() {
+                    $(".user-name").text("Chat History");
+                    $("#history-actions").css({opacity: 1, transform: 'translateY(0)'});
+                }, 200);
+                
                 // Render history list (placeholder)
                 $("#history-list").html("<li class='history-item empty-history'>No chat history yet</li>");
             });
@@ -416,21 +511,35 @@
                 $('.sidebar').toggleClass('show');
             });
 
-            // Theme toggle functionality
+            // Enhanced Theme toggle functionality with improved labels and logo switching
             $('#themeToggle').on('change', function () {
                 if ($(this).is(':checked')) {
-                    $('body').addClass('dark-theme');
+                    $('body').removeClass('light-theme').addClass('dark-theme');
+                    $('.theme-label').text('Dark Mode');
                     localStorage.setItem('theme', 'dark');
                 } else {
-                    $('body').removeClass('dark-theme');
+                    $('body').removeClass('dark-theme').addClass('light-theme');
+                    $('.theme-label').text('Light Mode');
                     localStorage.setItem('theme', 'light');
                 }
+                // Update logos based on new theme
+                updateLogos();
             });
 
             // Load saved theme
-            if (localStorage.getItem('theme') === 'dark') {
-                $('#themeToggle').prop('checked', true).trigger('change');
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            if (savedTheme === 'dark') {
+                $('#themeToggle').prop('checked', true);
+                $('body').removeClass('light-theme').addClass('dark-theme');
+                $('.theme-label').text('Dark Mode');
+            } else {
+                $('#themeToggle').prop('checked', false);
+                $('body').removeClass('dark-theme').addClass('light-theme');
+                $('.theme-label').text('Light Mode');
             }
+
+            // Update logos based on initial theme
+            updateLogos();
 
             // Floating action button handler
             $('.floating-action-button').on('click', function () {
