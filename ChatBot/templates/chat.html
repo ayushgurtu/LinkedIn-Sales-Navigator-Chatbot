@@ -61,7 +61,7 @@
                     <input type="checkbox" id="themeToggle">
                     <span class="toggle-slider"></span>
                 </label>
-                <span class="ms-2 text-sm">Dark Mode</span>
+                <span class="ms-2 text-sm theme-label">Dark Mode</span>
             </div>
         </aside>
 
@@ -178,11 +178,21 @@
             return `${hours}:${minutes}`;
         }
 
+        // Store keep visible interval reference globally
+        let keepVisibleInterval;
+
+        // Enhanced typing indicator that serves as loading indicator
         function showTyping() {
+            // First remove any existing typing indicators
             $("#messageFormeight #typing-indicator").remove();
+            
+            // Clear any existing interval
+            if (keepVisibleInterval) {
+                clearInterval(keepVisibleInterval);
+            }
 
             const typingIndicatorHtml = `
-                <div id="typing-indicator" class="message-row bot-message typing-message">
+                <div id="typing-indicator" class="message-row bot-message typing-message animate-in">
                     <div class="message-avatar">
                         <img src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png" alt="Bot">
                     </div>
@@ -196,10 +206,36 @@
 
             $("#messageFormeight").append(typingIndicatorHtml);
             scrollToBottom();
+            
+            // Make sure the typing indicator remains visible if user scrolls
+            keepVisibleInterval = setInterval(() => {
+                if ($("#typing-indicator").length > 0) {
+                    scrollToBottom();
+                } else {
+                    clearInterval(keepVisibleInterval);
+                }
+            }, 1000);
+
+            // Debug log to verify the typing indicator was created
+            console.log("Typing indicator shown", $("#typing-indicator").length);
         }
 
         function hideTyping() {
-            $("#messageFormeight #typing-indicator").remove();
+            // Clear the interval
+            if (keepVisibleInterval) {
+                clearInterval(keepVisibleInterval);
+                keepVisibleInterval = null;
+            }
+            
+            // Only try to remove if it exists
+            const $typingIndicator = $("#messageFormeight #typing-indicator");
+            if ($typingIndicator.length) {
+                $typingIndicator.fadeOut(300, function() {
+                    $(this).remove();
+                    // Debug log to verify removal
+                    console.log("Typing indicator removed");
+                });
+            }
         }
 
         function handleBotResponse(response) {
@@ -287,24 +323,43 @@
             // Hide intro container if visible
             $(".intro-container").fadeOut();
 
-            // Show typing indicator
+            // Disable the send button and input while processing
+            $("#send").prop('disabled', true);
+            $("#text").prop('disabled', true).attr('placeholder', 'Waiting for response...');
+
+            // Show typing indicator as our loading indicator and ensure it's rendered
             showTyping();
             scrollToBottom();
-
-            // Send message to backend
-            $.ajax({
-                type: "POST",
-                url: "/get",
-                data: { msg: message },
-                success: function (response) {
-                    hideTyping();
-                    handleBotResponse(response);
-                },
-                error: function () {
-                    hideTyping();
-                    handleBotResponse("I'm sorry, there was an error processing your request. Please try again.");
-                }
-            });
+            
+            // Small delay to ensure the typing indicator is visible before API call starts
+            setTimeout(() => {
+                // Send message to backend
+                $.ajax({
+                    type: "POST",
+                    url: "/get",
+                    data: { msg: message },
+                    success: function (response) {
+                        // Hide typing with a slight delay for better UX
+                        setTimeout(() => {
+                            hideTyping();
+                            handleBotResponse(response);
+                            // Re-enable the send button and input
+                            $("#send").prop('disabled', false);
+                            $("#text").prop('disabled', false).attr('placeholder', 'Type your message...');
+                        }, 500);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("API Error:", status, error);
+                        setTimeout(() => {
+                            hideTyping();
+                            handleBotResponse("I'm sorry, there was an error processing your request. Please try again.");
+                            // Re-enable the send button and input
+                            $("#send").prop('disabled', false);
+                            $("#text").prop('disabled', false).attr('placeholder', 'Type your message...');
+                        }, 500);
+                    }
+                });
+            }, 100); // Small delay to ensure the typing indicator is displayed
         }
 
         // Suggestion button handler
@@ -416,20 +471,29 @@
                 $('.sidebar').toggleClass('show');
             });
 
-            // Theme toggle functionality
+            // Enhanced Theme toggle functionality with improved labels
             $('#themeToggle').on('change', function () {
                 if ($(this).is(':checked')) {
-                    $('body').addClass('dark-theme');
+                    $('body').removeClass('light-theme').addClass('dark-theme');
+                    $('.theme-label').text('Dark Mode');
                     localStorage.setItem('theme', 'dark');
                 } else {
-                    $('body').removeClass('dark-theme');
+                    $('body').removeClass('dark-theme').addClass('light-theme');
+                    $('.theme-label').text('Light Mode');
                     localStorage.setItem('theme', 'light');
                 }
             });
 
             // Load saved theme
-            if (localStorage.getItem('theme') === 'dark') {
-                $('#themeToggle').prop('checked', true).trigger('change');
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            if (savedTheme === 'dark') {
+                $('#themeToggle').prop('checked', true);
+                $('body').removeClass('light-theme').addClass('dark-theme');
+                $('.theme-label').text('Dark Mode');
+            } else {
+                $('#themeToggle').prop('checked', false);
+                $('body').removeClass('dark-theme').addClass('light-theme');
+                $('.theme-label').text('Light Mode');
             }
 
             // Floating action button handler

@@ -17,8 +17,21 @@
     --grey-800: #1f2937;
     --grey-900: #111827;
     
-    /* Enhanced background gradient with warmer tones */
+    /* Enhanced background gradient with warmer tones - Default dark theme */
     --bg-gradient: linear-gradient(135deg, #1e1e2f, #2d2a3e, #352b46);
+    
+    /* Theme colors - will be overridden by theme classes */
+    --theme-bg: var(--bg-gradient);
+    --theme-text: var(--text-light);
+    --theme-card: rgba(20, 20, 35, 0.7);
+    --theme-card-alt: rgba(20, 20, 35, 0.4);
+    --theme-border: rgba(255, 255, 255, 0.07);
+    --theme-input-bg: rgba(255, 255, 255, 0.05);
+    --theme-input-border: rgba(255, 255, 255, 0.1);
+    --chat-bg: transparent;
+    --message-shadow: var(--shadow-md);
+    --bot-message-bg: var(--theme-card);
+    --bot-message-color: var(--theme-text);
     
     /* Sizing */
     --sidebar-width: 280px;
@@ -42,15 +55,46 @@
     --glow-accent: 0 0 15px rgba(78, 205, 196, 0.4);
 }
 
+/* Dark theme explicit variables for consistency */
+body.dark-theme {
+    --bg-gradient: linear-gradient(135deg, #1e1e2f, #2d2a3e, #352b46);
+    --theme-text: var(--text-light);
+    --theme-card: rgba(20, 20, 35, 0.7);
+    --theme-card-alt: rgba(20, 20, 35, 0.4);
+    --theme-border: rgba(255, 255, 255, 0.07);
+    --theme-input-bg: rgba(255, 255, 255, 0.05);
+    --theme-input-border: rgba(255, 255, 255, 0.1);
+    --chat-bg: transparent;
+    --message-shadow: var(--shadow-md);
+    --bot-message-bg: var(--theme-card);
+    --bot-message-color: var(--theme-text);
+}
+
+/* Improved light theme overrides */
+body.light-theme {
+    --bg-gradient: linear-gradient(135deg, #ffffff, #f5f7fa, #eef2f7);
+    --theme-text: var(--text-dark);
+    --theme-card: rgba(255, 255, 255, 0.9);
+    --theme-card-alt: rgba(255, 255, 255, 0.95);
+    --theme-border: rgba(0, 0, 0, 0.08);
+    --theme-input-bg: rgba(249, 250, 251, 0.9);
+    --theme-input-border: rgba(0, 0, 0, 0.1);
+    --chat-bg: #f5f7fa;
+    --message-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
+    --bot-message-bg: #ffffff;
+    --bot-message-color: var(--text-dark);
+}
+
 /* Base styles */
 html, body {
     height: 100%;
     margin: 0;
     padding: 0;
     font-family: 'Inter', sans-serif;
-    background: var(--bg-gradient);
-    color: var(--text-light);
+    background: var(--theme-bg);
+    color: var(--theme-text);
     overflow: hidden;
+    transition: background var(--transition-slow) ease;
 }
 
 /* App container with enhanced styling */
@@ -86,10 +130,10 @@ html, body {
 /* Sidebar with glass effect */
 .sidebar {
     width: var(--sidebar-width);
-    background-color: rgba(20, 20, 35, 0.7);
+    background-color: var(--theme-card);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border-right: 1px solid rgba(255, 255, 255, 0.07);
+    border-right: 1px solid var(--theme-border);
     display: flex;
     flex-direction: column;
     transition: all var(--transition-normal) cubic-bezier(0.4, 0, 0.2, 1);
@@ -101,7 +145,7 @@ html, body {
     padding: 24px;
     display: flex;
     align-items: center;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    border-bottom: 1px solid var(--theme-border);
 }
 
 .sidebar-logo {
@@ -121,11 +165,11 @@ html, body {
     font-size: 18px;
     font-weight: 600;
     margin: 0;
-    color: var(--text-light);
+    color: var(--theme-text);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    background: linear-gradient(90deg, var(--text-light), #ddd);
+    background: linear-gradient(90deg, var(--theme-text), #ddd);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -192,7 +236,7 @@ html, body {
 }
 
 .sidebar-nav .nav-item:hover a {
-    color: var(--text-light);
+    color: var(--theme-text);
 }
 
 .sidebar-nav .nav-item.active {
@@ -219,7 +263,7 @@ html, body {
 
 .sidebar-footer {
     padding: 18px 20px;
-    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    border-top: 1px solid var(--theme-border);
     font-size: 12px;
     color: var(--grey-500);
     text-align: center;
@@ -232,7 +276,7 @@ html, body {
     flex-direction: column;
     height: 100%;
     overflow: hidden;
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: var(--chat-bg);
     position: relative;
 }
 
@@ -243,8 +287,8 @@ html, body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-    background-color: rgba(20, 20, 35, 0.4);
+    border-bottom: 1px solid var(--theme-border);
+    background-color: var(--theme-card-alt);
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
 }
@@ -366,7 +410,7 @@ html, body {
 
 .header-actions .btn:hover {
     background-color: rgba(255, 107, 107, 0.15);
-    color: var(--text-light);
+    color: var(--theme-text);
     transform: translateY(-3px);
     box-shadow: 0 5px 15px rgba(255, 107, 107, 0.2);
 }
@@ -519,66 +563,153 @@ html, body {
 }
 
 .bot-bubble {
-    background: rgba(255, 255, 255, 0.95);
-    color: var(--text-dark);
+    background: var(--bot-message-bg);
+    color: var(--bot-message-color);
     border-bottom-left-radius: 4px;
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--message-shadow);
 }
 
 .bot-message .message-time {
     left: 15px;
 }
 
-/* Typing indicator with enhanced animation */
+/* Typing indicator with enhanced animation - Improved visibility */
 .typing-message {
     margin-bottom: 30px;
+    position: relative;
 }
 
 .typing-bubble {
     padding: 12px 16px;
-    min-width: 80px;
-    height: 40px;
+    min-width: 100px;
+    height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.8);
+    background: var(--bot-message-bg);
+    color: var(--bot-message-color);
+    box-shadow: var(--message-shadow);
+    border-bottom-left-radius: 4px;
+    position: relative;
+    /* Add subtle pulsating effect to the whole bubble */
+    animation: subtle-pulse 2s infinite alternate;
+}
+
+@keyframes subtle-pulse {
+    0% { box-shadow: var(--message-shadow); }
+    100% { box-shadow: 0 6px 15px rgba(78, 205, 196, 0.2), 0 2px 5px rgba(78, 205, 196, 0.1); }
+}
+
+.typing-bubble::after {
+    content: 'AI is thinking...';
+    position: absolute;
+    bottom: -20px;
+    left: 0;
+    font-size: 12px;
+    color: var(--grey-400);
+    opacity: 0.9;
+    font-weight: 500;
 }
 
 .typing-dots {
     display: flex;
     align-items: center;
+    justify-content: center;
+    width: 70px;
 }
 
 .typing-dots span {
     display: inline-block;
-    width: 8px;
-    height: 8px;
-    margin: 0 2px;
+    width: 10px;
+    height: 10px;
+    margin: 0 4px;
     background: var(--primary-color);
     border-radius: 50%;
-    opacity: 0.7;
+    opacity: 0.8;
     animation: typing-bounce 1.2s infinite both;
+    box-shadow: 0 0 10px rgba(255, 107, 107, 0.4);
 }
 
 .typing-dots span:nth-child(2) {
     background: var(--secondary-color);
     animation-delay: 0.2s;
+    box-shadow: 0 0 10px rgba(255, 168, 108, 0.4);
 }
 
 .typing-dots span:nth-child(3) {
     background: var(--accent-color);
     animation-delay: 0.4s;
+    box-shadow: 0 0 10px rgba(78, 205, 196, 0.4);
 }
 
 @keyframes typing-bounce {
-    0%, 80%, 100% {
-        transform: scale(0.7);
-        opacity: 0.7;
+    0%, 100% { 
+        transform: translateY(0);
+        opacity: 0.5;
     }
-    40% {
-        transform: scale(1.2);
+    50% { 
+        transform: translateY(-10px);
         opacity: 1;
+        box-shadow: 0 5px 15px rgba(255, 107, 107, 0.6);
     }
+}
+
+/* Light theme enhancements for typing indicator */
+body.light-theme .typing-bubble {
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+body.light-theme .typing-bubble::after {
+    color: var(--grey-600);
+    font-weight: 500;
+}
+
+body.light-theme .typing-dots span {
+    background: var(--primary-color);
+    box-shadow: 0 0 8px rgba(255, 107, 107, 0.6);
+}
+
+body.light-theme .typing-dots span:nth-child(2) {
+    background: var(--secondary-color);
+    box-shadow: 0 0 8px rgba(255, 168, 108, 0.6);
+}
+
+body.light-theme .typing-dots span:nth-child(3) {
+    background: var(--accent-color);
+    box-shadow: 0 0 8px rgba(78, 205, 196, 0.6);
+}
+
+body.light-theme .typing-bubble {
+    animation: subtle-pulse-light 2s infinite alternate;
+}
+
+@keyframes subtle-pulse-light {
+    0% { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); }
+    100% { box-shadow: 0 5px 15px rgba(255, 107, 107, 0.15), 0 2px 5px rgba(255, 107, 107, 0.1); }
+}
+
+/* Remove the query processing overlay as we're using the typing indicator instead */
+.query-processing-overlay {
+    display: none !important;
+}
+
+/* Add disabled styling to input and button */
+.message-input:disabled {
+    background-color: var(--theme-input-bg);
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.send-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.send-button:disabled:hover {
+    transform: none;
+    box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
 }
 
 /* Table styles with improved look */
@@ -667,9 +798,9 @@ html, body {
 /* Message input and footer with enhanced styling */
 .chat-footer {
     height: var(--footer-height);
-    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    border-top: 1px solid var(--theme-border);
     padding: 16px 24px;
-    background-color: rgba(20, 20, 35, 0.4);
+    background-color: var(--theme-card-alt);
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
     position: relative;
@@ -691,16 +822,10 @@ html, body {
     );
 }
 
-.message-input-form {
-    max-width: 900px;
-    margin: 0 auto;
-    position: relative;
-}
-
 .message-input {
-    background-color: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: var(--text-light);
+    background-color: var(--theme-input-bg);
+    border: 1px solid var(--theme-input-border);
+    color: var(--theme-text);
     border-radius: 24px;
     padding: 14px 22px;
     transition: all var(--transition-normal) cubic-bezier(0.4, 0, 0.2, 1);
@@ -709,11 +834,11 @@ html, body {
 }
 
 .message-input:focus {
-    background-color: rgba(255, 255, 255, 0.07);
+    background-color: var(--theme-input-bg);
     border-color: var(--primary-light);
     box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2);
     outline: none;
-    color: var(--text-light);
+    color: var(--theme-text);
 }
 
 .message-input::placeholder {
@@ -801,13 +926,13 @@ html, body {
 .intro-container {
     max-width: 700px;
     margin: 0 auto;
-    background-color: rgba(20, 20, 35, 0.4);
+    background-color: var(--theme-card-alt);
     border-radius: 16px;
     padding: 40px;
     text-align: center;
     animation: fadeIn 0.8s ease-out;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--theme-border);
     position: relative;
     overflow: hidden;
 }
@@ -869,7 +994,7 @@ html, body {
     font-size: 28px;
     font-weight: 700;
     margin-bottom: 20px;
-    color: var(--text-light);
+    color: var(--theme-text);
     background: linear-gradient(90deg, var(--primary-light), var(--secondary-color), var(--accent-color));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -878,7 +1003,7 @@ html, body {
 }
 
 .intro-text {
-    color: var(--grey-300);
+    color: var(--theme-text);
     font-size: 16px;
     line-height: 1.7;
     margin-bottom: 35px;
@@ -921,7 +1046,7 @@ html, body {
 .suggestion-chip {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.03));
     border: 1px solid rgba(255, 255, 255, 0.1);
-    color: var(--text-light);
+    color: var(--theme-text);
     border-radius: 24px;
     padding: 10px 18px;
     font-size: 14px;
@@ -1517,7 +1642,7 @@ input:checked + .toggle-slider:before {
 
 .modal-custom .modal-body {
     padding: 20px;
-    color: var(--text-light);
+    color: var(--theme-text);
 }
 
 .modal-custom .modal-footer {
@@ -1648,7 +1773,53 @@ input:checked + .toggle-slider:before {
     100% { transform: scale(1.05); }
 }
 
-@keyframes glow-pulse {
-    0% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
-    100% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.2); }
+/* Query processing overlay and spinner */
+/* .query-processing-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
 }
+
+.query-processing-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.query-spinner {
+    width: 80px;
+    height: 80px;
+    background-color: var(--theme-card);
+    border-radius: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: var(--shadow-lg);
+    animation: pulse-subtle 2s infinite alternate;
+}
+
+.query-spinner-inner {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 4px solid transparent;
+    border-top-color: var(--primary-color);
+    border-bottom-color: var(--accent-color);
+    animation: spin 1.2s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+} */
