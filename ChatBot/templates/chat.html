@@ -81,15 +81,27 @@
                     </div>
                 </div>
 
-                <!-- Add notification icon -->
+                <!-- Context-aware header actions -->
                 <div class="header-actions">
-
-                    <button class="btn btn-refresh shimmer-effect" title="New Chat">
-                        <i class="fas fa-plus"></i>
-                    </button>
-                    <button class="btn btn-clear" title="Clear Chat">
-                        <i class="fas fa-trash"></i>
-                    </button>
+                    <!-- Chat view buttons -->
+                    <div id="chat-actions">
+                        <button class="btn btn-refresh shimmer-effect" title="New Chat">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <button class="btn btn-clear" title="Clear Chat">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- History view buttons -->
+                    <div id="history-actions" style="display: none;">
+                        <button class="btn btn-export" title="Export History">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button class="btn btn-clear-history" title="Clear All History">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
                 </div>
             </header>
 
@@ -105,11 +117,6 @@
                         <p class="intro-text">
                             Introducing our Sales Assistant — your reliable resource for strategic prospecting and
                             business development.
-                            Whether you are seeking key decision-makers, company intelligence, or tailored lead
-                            recommendations,
-                            our Sales Assistant is designed to deliver accurate, insightful, and timely support to
-                            enhance your sales
-                            efforts and drive meaningful connections.
                         </p>
                         <div class="intro-suggestions">
                             <h4>Try asking:</h4>
@@ -403,6 +410,15 @@
                 $("#nav-history").removeClass("active");
                 $("#messageFormeight").show();
                 $("#history-panel-display").hide();
+                
+                // Update header context with smooth transition
+                $("#chat-actions").css({opacity: 0, transform: 'translateY(-10px)'}).show();
+                $("#history-actions").css({opacity: 1, transform: 'translateY(0)'}).fadeOut(200);
+                
+                setTimeout(function() {
+                    $(".user-name").text("AsiaPac Lead Finder");
+                    $("#chat-actions").css({opacity: 1, transform: 'translateY(0)'});
+                }, 200);
             });
 
             $("#nav-history").on("click", function () {
@@ -410,6 +426,16 @@
                 $("#nav-chat").removeClass("active");
                 $("#messageFormeight").hide();
                 $("#history-panel-display").show();
+                
+                // Update header context with smooth transition
+                $("#history-actions").css({opacity: 0, transform: 'translateY(-10px)'}).show();
+                $("#chat-actions").css({opacity: 1, transform: 'translateY(0)'}).fadeOut(200);
+                
+                setTimeout(function() {
+                    $(".user-name").text("Chat History");
+                    $("#history-actions").css({opacity: 1, transform: 'translateY(0)'});
+                }, 200);
+                
                 // Render history list (placeholder)
                 $("#history-list").html("<li class='history-item empty-history'>No chat history yet</li>");
             });

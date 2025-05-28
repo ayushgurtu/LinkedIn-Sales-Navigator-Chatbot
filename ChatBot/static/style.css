@@ -68,6 +68,14 @@ body.dark-theme {
     --message-shadow: var(--shadow-md);
     --bot-message-bg: var(--theme-card);
     --bot-message-color: var(--theme-text);
+    --sidebar-bg: linear-gradient(160deg, rgba(20, 20, 35, 0.8), rgba(30, 30, 45, 0.85));
+    --sidebar-active-bg: rgba(255, 107, 107, 0.15);
+    --sidebar-active-text: var(--primary-light);
+    --sidebar-hover-bg: rgba(255, 107, 107, 0.1);
+    --sidebar-border: rgba(255, 255, 255, 0.07);
+    --history-panel-bg: rgba(20, 20, 35, 0.5);
+    --history-item-bg: rgba(255, 255, 255, 0.04);
+    --history-item-hover-bg: rgba(255, 255, 255, 0.07);
 }
 
 /* Improved light theme overrides */
@@ -83,6 +91,14 @@ body.light-theme {
     --message-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
     --bot-message-bg: #ffffff;
     --bot-message-color: var(--text-dark);
+    --sidebar-bg: linear-gradient(160deg, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.9));
+    --sidebar-active-bg: rgba(255, 107, 107, 0.1);
+    --sidebar-active-text: var(--primary-dark);
+    --sidebar-hover-bg: rgba(255, 107, 107, 0.05);
+    --sidebar-border: rgba(0, 0, 0, 0.06);
+    --history-panel-bg: rgba(245, 247, 250, 0.9);
+    --history-item-bg: rgba(255, 255, 255, 0.7);
+    --history-item-hover-bg: rgba(255, 255, 255, 0.9);
 }
 
 /* Base styles */
@@ -127,17 +143,17 @@ html, body {
     50% { opacity: 1; }
 }
 
-/* Sidebar with glass effect */
+/* Sidebar with glass effect - improved styling */
 .sidebar {
     width: var(--sidebar-width);
-    background-color: var(--theme-card);
+    background: var(--sidebar-bg);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border-right: 1px solid var(--theme-border);
+    border-right: 1px solid var(--sidebar-border);
     display: flex;
     flex-direction: column;
     transition: all var(--transition-normal) cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.08);
     z-index: 10;
 }
 
@@ -146,7 +162,7 @@ html, body {
     display: flex;
     justify-content: center; /* Center the logo when there's no text */
     align-items: center;
-    border-bottom: 1px solid var(--theme-border);
+    border-bottom: 1px solid var(--sidebar-border);
 }
 
 .sidebar-logo {
@@ -154,14 +170,14 @@ html, body {
     height: auto; /* Allow height to adjust proportionally */
     max-width: 100%; /* Ensure it doesn't overflow container */
     border-radius: 12px;
-    box-shadow: var(--shadow-md);
+    /* box-shadow: var(--shadow-md); */
     transition: transform var(--transition-normal) ease;
     object-fit: contain; /* Preserve aspect ratio */
     padding: 10px; /* Slightly increased padding */
 }
 
 .sidebar-header:hover .sidebar-logo {
-    transform: rotate(10deg);
+    transform: rotate(3deg);
 }
 
 .sidebar-title {
@@ -207,7 +223,7 @@ html, body {
     left: 0;
     width: 0;
     height: 100%;
-    background: linear-gradient(90deg, rgba(255, 107, 107, 0.2), transparent);
+    background: linear-gradient(90deg, var(--sidebar-hover-bg), transparent);
     transition: width var(--transition-normal) ease;
     z-index: -1;
 }
@@ -243,12 +259,12 @@ html, body {
 }
 
 .sidebar-nav .nav-item.active {
-    background: rgba(255, 107, 107, 0.15);
-    box-shadow: 0 0 10px rgba(255, 107, 107, 0.2);
+    background: var(--sidebar-active-bg);
+    box-shadow: 0 0 10px rgba(255, 107, 107, 0.15);
 }
 
 .sidebar-nav .nav-item.active a {
-    color: var(--primary-light);
+    color: var(--sidebar-active-text);
 }
 
 .sidebar-nav .nav-item.active::after {
@@ -281,6 +297,67 @@ html, body {
     overflow: hidden;
     background-color: var(--chat-bg);
     position: relative;
+}
+
+/* Ensure header consistency between views - refined styles */
+.chat-header {
+    height: var(--header-height);
+    min-height: 70px; /* Ensure minimum height regardless of content */
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--theme-border);
+    background-color: var(--theme-card-alt);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    transition: all var(--transition-normal) ease;
+}
+
+.header-actions {
+    display: flex;
+    gap: 12px;
+    transition: all var(--transition-normal) ease;
+}
+
+#chat-actions, #history-actions {
+    display: flex;
+    gap: 12px;
+    transition: opacity var(--transition-fast) ease, transform var(--transition-fast) ease;
+    height: 40px; /* Fixed height for button containers */
+}
+
+/* Button variations with consistent sizing */
+.btn-export,
+.btn-clear-history,
+.btn-refresh,
+.btn-clear {
+    width: 40px;
+    height: 40px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+    .chat-header {
+        padding: 0 16px;
+        min-height: 60px; /* Slightly reduced for mobile but still consistent */
+    }
+    
+    .user-name {
+        font-size: 16px;
+        line-height: 1.2; /* Control line height for better vertical spacing */
+    }
+    
+    .user-status {
+        font-size: 11px;
+        line-height: 1; /* Tighter line height on mobile */
+    }
+    
+    .user-avatar {
+        width: 38px;
+        height: 38px;
+        margin-right: 12px;
+    }
 }
 
 /* Chat header with enhanced styling */
@@ -1098,13 +1175,16 @@ body.light-theme .typing-bubble {
     height: 100%;
     padding: 24px;
     overflow-y: auto;
-    background-color: rgba(20, 20, 35, 0.2);
+    background-color: var(--history-panel-bg);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: background-color var(--transition-normal) ease;
 }
 
 .history-panel h3 {
     font-size: 20px;
     margin-bottom: 24px;
-    color: var(--grey-300);
+    color: var(--theme-text);
     display: flex;
     align-items: center;
     position: relative;
@@ -1140,7 +1220,7 @@ body.light-theme .typing-bubble {
 }
 
 .history-item {
-    background: rgba(255, 255, 255, 0.04);
+    background: var(--history-item-bg);
     padding: 16px;
     margin-bottom: 14px;
     border-radius: 12px;
@@ -1149,6 +1229,8 @@ body.light-theme .typing-bubble {
     border-left: 3px solid transparent;
     position: relative;
     overflow: hidden;
+    color: var(--theme-text);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .history-item::before {
@@ -1161,30 +1243,48 @@ body.light-theme .typing-bubble {
     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
     transition: left 0.5s;
 }
-
+    
 .history-item:hover::before {
     left: 100%;
 }
 
 .history-item:hover {
-    background: rgba(255, 255, 255, 0.07);
+    background: var(--history-item-hover-bg);
     border-left-color: var(--primary-color);
     transform: translateX(5px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
 }
 
 .history-item.empty-history {
     text-align: center;
     color: var(--grey-500);
     padding: 30px;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px dashed rgba(255, 255, 255, 0.1);
+    background: var(--history-item-bg);
+    border: 1px dashed var(--theme-border);
     animation: pulse-subtle 2s infinite alternate;
 }
 
 @keyframes pulse-subtle {
-    0% { background-color: rgba(255, 255, 255, 0.02); }
-    100% { background-color: rgba(255, 255, 255, 0.04); }
+    0% { background-color: var(--history-item-bg); }
+    100% { background-color: var(--history-item-hover-bg); }
+}
+
+/* Light theme specific adjustments for history items */
+body.light-theme .history-item {
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+body.light-theme .history-panel h3 {
+    color: var(--grey-700);
+}
+
+body.light-theme .history-panel h3::before {
+    background: linear-gradient(to bottom, var(--primary-light), var(--secondary-color));
+}
+
+/* Dark theme specific adjustments */
+body.dark-theme .history-panel h3 i {
+    text-shadow: 0 0 10px rgba(255, 107, 107, 0.3);
 }
 
 /* Responsive enhancements */
