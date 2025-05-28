@@ -20,7 +20,9 @@
     <div id="splash-screen" class="splash-screen">
         <div class="splash-content">
             <div class="splash-logo">
-                <img src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png" alt="Logo">
+                <img src="{{ url_for('static', filename='images/logo-dark.png') }}" alt="Logo" class="theme-logo"
+                    data-logo-dark="{{ url_for('static', filename='images/logo-dark.png') }}"
+                    data-logo-light="{{ url_for('static', filename='images/logo-light.png') }}">
                 <div class="splash-logo-glow"></div>
             </div>
             <h2 class="splash-title">AsiaPac Lead Finder</h2>
@@ -38,8 +40,11 @@
 
         <aside class="sidebar">
             <div class="sidebar-header">
-                <img src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png" alt="Logo" class="sidebar-logo">
-                <h1 class="sidebar-title">AsiaPac Lead Finder</h1>
+                <img src="{{ url_for('static', filename='images/logo-dark.png') }}" alt="Logo"
+                    class="sidebar-logo theme-logo"
+                    data-logo-dark="{{ url_for('static', filename='images/logo-dark.png') }}"
+                    data-logo-light="{{ url_for('static', filename='images/logo-light.png') }}">
+                <!-- Removing the sidebar-title to give logo more space -->
             </div>
             <nav class="sidebar-nav">
                 <ul>
@@ -68,6 +73,7 @@
         <main class="main-content">
             <header class="chat-header">
                 <div class="user-info">
+                    <!-- Use default AI avatar instead of company logo -->
                     <img src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png" alt="AI Assistant" class="user-avatar">
                     <div class="user-details">
                         <h2 class="user-name">AsiaPac Lead Finder</h2>
@@ -77,10 +83,7 @@
 
                 <!-- Add notification icon -->
                 <div class="header-actions">
-                    <button class="btn" title="Notifications">
-                        <i class="fas fa-bell"></i>
-                        <span class="notification-badge">3</span>
-                    </button>
+
                     <button class="btn btn-refresh shimmer-effect" title="New Chat">
                         <i class="fas fa-plus"></i>
                     </button>
@@ -185,7 +188,7 @@
         function showTyping() {
             // First remove any existing typing indicators
             $("#messageFormeight #typing-indicator").remove();
-            
+
             // Clear any existing interval
             if (keepVisibleInterval) {
                 clearInterval(keepVisibleInterval);
@@ -206,7 +209,7 @@
 
             $("#messageFormeight").append(typingIndicatorHtml);
             scrollToBottom();
-            
+
             // Make sure the typing indicator remains visible if user scrolls
             keepVisibleInterval = setInterval(() => {
                 if ($("#typing-indicator").length > 0) {
@@ -226,11 +229,11 @@
                 clearInterval(keepVisibleInterval);
                 keepVisibleInterval = null;
             }
-            
+
             // Only try to remove if it exists
             const $typingIndicator = $("#messageFormeight #typing-indicator");
             if ($typingIndicator.length) {
-                $typingIndicator.fadeOut(300, function() {
+                $typingIndicator.fadeOut(300, function () {
                     $(this).remove();
                     // Debug log to verify removal
                     console.log("Typing indicator removed");
@@ -330,7 +333,7 @@
             // Show typing indicator as our loading indicator and ensure it's rendered
             showTyping();
             scrollToBottom();
-            
+
             // Small delay to ensure the typing indicator is visible before API call starts
             setTimeout(() => {
                 // Send message to backend
@@ -371,6 +374,17 @@
         window.sendButtonResponse = function (buttonText) {
             sendMessage(buttonText);
         };
+
+        // Function to update logos based on current theme
+        function updateLogos() {
+            const isDarkTheme = $('body').hasClass('dark-theme');
+            $('.theme-logo').each(function () {
+                const logoSrc = isDarkTheme ?
+                    $(this).attr('data-logo-dark') :
+                    $(this).attr('data-logo-light');
+                $(this).attr('src', logoSrc);
+            });
+        }
 
         // Document ready handlers
         $(document).ready(function () {
@@ -471,7 +485,7 @@
                 $('.sidebar').toggleClass('show');
             });
 
-            // Enhanced Theme toggle functionality with improved labels
+            // Enhanced Theme toggle functionality with improved labels and logo switching
             $('#themeToggle').on('change', function () {
                 if ($(this).is(':checked')) {
                     $('body').removeClass('light-theme').addClass('dark-theme');
@@ -482,6 +496,8 @@
                     $('.theme-label').text('Light Mode');
                     localStorage.setItem('theme', 'light');
                 }
+                // Update logos based on new theme
+                updateLogos();
             });
 
             // Load saved theme
@@ -495,6 +511,9 @@
                 $('body').removeClass('dark-theme').addClass('light-theme');
                 $('.theme-label').text('Light Mode');
             }
+
+            // Update logos based on initial theme
+            updateLogos();
 
             // Floating action button handler
             $('.floating-action-button').on('click', function () {

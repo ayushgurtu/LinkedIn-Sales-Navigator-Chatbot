@@ -144,17 +144,20 @@ html, body {
 .sidebar-header {
     padding: 24px;
     display: flex;
+    justify-content: center; /* Center the logo when there's no text */
     align-items: center;
     border-bottom: 1px solid var(--theme-border);
 }
 
 .sidebar-logo {
-    width: 42px;
-    height: 42px;
-    margin-right: 14px;
+    width: 200px; /* Increased width to at least 200px */
+    height: auto; /* Allow height to adjust proportionally */
+    max-width: 100%; /* Ensure it doesn't overflow container */
     border-radius: 12px;
     box-shadow: var(--shadow-md);
     transition: transform var(--transition-normal) ease;
+    object-fit: contain; /* Preserve aspect ratio */
+    padding: 10px; /* Slightly increased padding */
 }
 
 .sidebar-header:hover .sidebar-logo {
@@ -1186,6 +1189,10 @@ body.light-theme .typing-bubble {
 
 /* Responsive enhancements */
 @media (max-width: 992px) {
+    :root {
+        --sidebar-width: 240px; /* Slightly increased for better logo display */
+    }
+    
     .sidebar {
         width: 80px;
     }
@@ -1211,6 +1218,11 @@ body.light-theme .typing-bubble {
     .message-bubble {
         max-width: 80%;
     }
+    
+    .sidebar-logo {
+        width: 180px; /* Slightly smaller on medium screens */
+        padding: 8px;
+    }
 }
 
 @media (max-width: 768px) {
@@ -1234,6 +1246,19 @@ body.light-theme .typing-bubble {
         flex-direction: column;
         max-width: 80%;
         margin: 0 auto;
+    }
+    
+    .sidebar-logo {
+        width: 160px; /* Further reduced on smaller screens */
+    }
+    
+    .splash-logo {
+        width: 180px;
+    }
+    
+    .splash-logo-glow {
+        width: 200px;
+        height: 200px;
     }
 }
 
@@ -1278,35 +1303,21 @@ body.light-theme .typing-bubble {
     
     .sidebar.show {
         transform: translateX(0);
+        width: 240px; /* Fixed width when sidebar is shown on mobile */
     }
     
-    .main-content {
-        width: 100%;
+    .sidebar-logo {
+        width: 140px; /* Smaller on mobile screens */
+        padding: 5px;
     }
     
-    /* Add mobile menu toggle button */
-    .mobile-menu-toggle {
-        display: block;
-        position: absolute;
-        top: 15px;
-        left: 15px;
-        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-        border: none;
-        width: 40px;
-        height: 40px;
-        border-radius: 8px;
-        color: white;
-        z-index: 101;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        transition: all var(--transition-normal) ease;
+    .splash-logo {
+        width: 160px;
     }
     
-    .mobile-menu-toggle:hover {
-        transform: scale(1.05);
-    }
-    
-    .user-info {
-        margin-left: 55px;
+    .splash-logo-glow {
+        width: 180px;
+        height: 180px;
     }
 }
 
@@ -1681,18 +1692,19 @@ input:checked + .toggle-slider:before {
 
 .splash-logo {
     position: relative;
-    width: 120px;
-    height: 120px;
+    width: 220px; /* Increased size to match sidebar logo */
+    height: auto;
     margin: 0 auto;
     animation: pulse-splash 2s infinite alternate;
 }
 
 .splash-logo img {
     width: 100%;
-    height: 100%;
-    object-fit: contain;
+    height: auto;
+    object-fit: contain; /* Preserve aspect ratio */
     position: relative;
     z-index: 2;
+    padding: 10px;
 }
 
 .splash-logo-glow {
@@ -1700,8 +1712,8 @@ input:checked + .toggle-slider:before {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 140px;
-    height: 140px;
+    width: 240px; /* Slightly larger than the logo */
+    height: 240px;
     background: radial-gradient(
         circle,
         rgba(255, 107, 107, 0.6) 0%,
