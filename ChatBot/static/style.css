@@ -713,6 +713,7 @@ html, body {
     border-color: var(--primary-light);
     box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2);
     outline: none;
+    color: var(--text-light);
 }
 
 .message-input::placeholder {
